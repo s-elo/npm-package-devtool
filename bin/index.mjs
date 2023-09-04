@@ -7,7 +7,9 @@ import fs from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'),
+);
 
 program.version(packageJson.version);
 
@@ -39,7 +41,10 @@ program
   .command('list')
   .description('list linked packages or added path.')
   .argument('[pckName]', 'list all the added path of a linked package')
-  .option('-c, --current', 'list all the packages that are added to current repo')
+  .option(
+    '-c, --current',
+    'list all the packages that are added to current repo',
+  )
   .option('-p, --packages', 'list all the packages that are linked')
   .action(async (pckName, { packages, current }) => {
     (await import('../dist/entries/index.js')).list(pckName, current, packages);
@@ -56,7 +61,10 @@ program
 program
   .command('unlink')
   .description('unlink packages.')
-  .argument('[pckNames]', 'specify package names to be unlinked, split with ","')
+  .argument(
+    '[pckNames]',
+    'specify package names to be unlinked, split with ","',
+  )
   .action(async (pckNames) => {
     (await import('../dist/entries/index.js')).unlink(pckNames);
   });

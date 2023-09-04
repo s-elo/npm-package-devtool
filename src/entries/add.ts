@@ -25,7 +25,9 @@ async function addByNames(packageNames: string[]) {
   const pckInfo = configService.getConfig();
   packageNames.forEach((name) => {
     if (!pckInfo[name]) {
-      log(chalk.red(`package ${name} not found, please link the package first.`));
+      log(
+        chalk.red(`package ${name} not found, please link the package first.`),
+      );
       return;
     }
 

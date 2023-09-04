@@ -58,7 +58,13 @@ export const getPackages = (rootPath = '') => {
   }
 };
 
-export const selector = async ({ choices, message }: { choices: string[]; message: string }) => {
+export const selector = async ({
+  choices,
+  message,
+}: {
+  choices: string[];
+  message: string;
+}) => {
   const inquirer = (await import('inquirer')).default;
 
   const result = await inquirer.prompt([

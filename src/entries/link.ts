@@ -19,7 +19,9 @@ export async function link(rootPath = '') {
     choices: packages?.map((p) => p.name),
     message: 'choose the packages you want to develop',
   });
-  const selectedPackages = packages?.filter((p) => packageNames.includes(p.name));
+  const selectedPackages = packages?.filter((p) =>
+    packageNames.includes(p.name),
+  );
   if (!selectedPackages?.length) return [];
 
   log(chalk.gray(`Linking packages: ${packageNames.join(',')}...`));

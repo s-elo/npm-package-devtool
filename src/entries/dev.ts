@@ -28,7 +28,11 @@ export async function dev(rootPath?: string) {
 
   // watch the file changed
   const debouncedWatcherHandler = debounce(
-    async (pck: { rootPath: string; name: string; config: Required<NpdConfig> }) => {
+    async (pck: {
+      rootPath: string;
+      name: string;
+      config: Required<NpdConfig>;
+    }) => {
       try {
         const pckInfo = configService.getConfig();
         const depProjectPath = pckInfo[pck.name];
@@ -55,7 +59,11 @@ export async function dev(rootPath?: string) {
       debouncedWatcherHandler(pck);
     });
   });
-  log(`${chalk.green(selectedPackages.map((p) => p.name).join(','))} are being watched...`);
+  log(
+    `${chalk.green(
+      selectedPackages.map((p) => p.name).join(','),
+    )} are being watched...`,
+  );
 
   const configWatcher = configService.startWatch();
 

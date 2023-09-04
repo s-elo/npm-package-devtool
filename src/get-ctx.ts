@@ -4,7 +4,10 @@ import path from 'path';
 import { safeJsonParse } from './utils';
 import watch, { Watcher } from 'node-watch';
 
-export const NPD_CONTEXT_DIR = path.resolve(os.homedir(), '.shopee-npm-package-dev-tool');
+export const NPD_CONTEXT_DIR = path.resolve(
+  os.homedir(),
+  '.shopee-npm-package-dev-tool',
+);
 
 export const NPD_CONTEXT_PATH = `${NPD_CONTEXT_DIR}/link.json`;
 
@@ -21,10 +24,10 @@ class ConfigService {
       fs.writeFileSync(NPD_CONTEXT_PATH, JSON.stringify({}));
       this._config = {};
     } else {
-      this._config = safeJsonParse(fs.readFileSync(NPD_CONTEXT_PATH, 'utf8'), {}) as Record<
-        string,
-        string[]
-      >;
+      this._config = safeJsonParse(
+        fs.readFileSync(NPD_CONTEXT_PATH, 'utf8'),
+        {},
+      ) as Record<string, string[]>;
     }
 
     return this._config;

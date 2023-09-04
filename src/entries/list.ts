@@ -2,7 +2,11 @@ import { configService } from '../get-ctx';
 import { cwd } from '../utils';
 import { log } from 'node:console';
 
-export function list(pckName?: string, isCurrent?: boolean, packages?: boolean) {
+export function list(
+  pckName?: string,
+  isCurrent?: boolean,
+  packages?: boolean,
+) {
   const pckInfo = configService.getConfig();
   if (pckName) {
     return log((pckInfo[pckName] ?? []).join('\n'));
@@ -18,7 +22,11 @@ export function list(pckName?: string, isCurrent?: boolean, packages?: boolean) 
       }
     });
 
-    return log(addedPackages.length ? addedPackages.join('\n') : 'No added packages for this repo');
+    return log(
+      addedPackages.length
+        ? addedPackages.join('\n')
+        : 'No added packages for this repo',
+    );
   }
 
   if (packages) {

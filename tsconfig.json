@@ -22,6 +22,4 @@
     "importHelpers": false,
     "outDir": "dist",
   },
-  "include": ["./src/**/*"],
-  "exclude": ["bin"]
 }
