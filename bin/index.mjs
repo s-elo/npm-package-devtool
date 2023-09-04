@@ -18,7 +18,7 @@ program
   .description('develop npm package(s) of current repo.')
   .argument('[rootPath]', 'root path where to find packages')
   .action(async (rootPath) => {
-    (await import('../dist/entries/index.js')).dev(rootPath);
+    (await import('../dist/index.js')).dev(rootPath);
   });
 
 program
@@ -26,7 +26,7 @@ program
   .description('link npm package(s) of current repo.')
   .argument('[rootPath]', 'root path where to find packages')
   .action(async (rootPath) => {
-    (await import('../dist/entries/index.js')).link(rootPath);
+    (await import('../dist/index.js')).link(rootPath);
   });
 
 program
@@ -34,7 +34,7 @@ program
   .description('add linked npm package(s) to current project.')
   .argument('[pckNames]', 'specify package names to add, split with ","')
   .action(async (pckNames) => {
-    (await import('../dist/entries/index.js')).add(pckNames);
+    (await import('../dist/index.js')).add(pckNames);
   });
 
 program
@@ -47,7 +47,7 @@ program
   )
   .option('-p, --packages', 'list all the packages that are linked')
   .action(async (pckName, { packages, current }) => {
-    (await import('../dist/entries/index.js')).list(pckName, current, packages);
+    (await import('../dist/index.js')).list(pckName, current, packages);
   });
 
 program
@@ -55,7 +55,7 @@ program
   .description('remove the linked packages of current repo.')
   .argument('[pckNames]', 'specify package names to be removed, split with ","')
   .action(async (pckNames) => {
-    (await import('../dist/entries/index.js')).remove(pckNames);
+    (await import('../dist/index.js')).remove(pckNames);
   });
 
 program
@@ -66,7 +66,7 @@ program
     'specify package names to be unlinked, split with ","',
   )
   .action(async (pckNames) => {
-    (await import('../dist/entries/index.js')).unlink(pckNames);
+    (await import('../dist/index.js')).unlink(pckNames);
   });
 
 program.parse(process.argv).opts();

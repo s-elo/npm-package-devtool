@@ -69,17 +69,14 @@ Before using this function, you might need to add some config at the `package.js
 ```json
 {
   "npd": {
-    // files/folders that need to be watched by NPD
-    // when they are updated, NPD will copy the package content to the related repos
-    // NPD watches all the files of the package by default.
     "watch": ["./esm", "./dist"],
-    // command that needs to execute when developing
-    // commands at the array execute sequentially
-    // commands among different packages execute parallelly.
     "start": ["tsc --watch"],
   }
 }
 ```
+
+- `watch`: files/folders that need to be watched by NPD, when they are updated, NPD will copy the package content to the related repos. NPD watches all the files of the package by default.
+- `start`: command that needs to execute when developing; commands at the array execute sequentially; commands among different packages execute parallelly. 
 
 ```bash
 # at the repo root path
