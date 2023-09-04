@@ -1,6 +1,6 @@
-export { dev } from './entries/dev';
-export { link } from './entries/link';
-export { add } from './entries/add';
-export { list } from './entries/list';
-export { remove } from './entries/remove';
-export { unlink } from './entries/unlink';
+export { dev } from './commands/dev';
+export { link } from './commands/link';
+export { add } from './commands/add';
+export { list } from './commands/list';
+export { remove } from './commands/remove';
+export { unlink } from './commands/unlink';
