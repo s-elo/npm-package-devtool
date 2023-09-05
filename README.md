@@ -75,7 +75,7 @@ Before using this function, you might need to add some config at the `package.js
 }
 ```
 
-- `watch`: files/folders that need to be watched by NPD, when they are updated, NPD will copy the package content to the related repos. NPD watches all the files of the package by default.
+- `watch`: files/folders that need to be watched by NPD, when they are updated, NPD will copy the updated content to the related repos. `package.json` will always be watched. NPD watches all the files of the package by default.
 - `start`: command that needs to execute when developing; commands at the array execute sequentially; commands among different packages execute parallelly. 
 
 ```bash

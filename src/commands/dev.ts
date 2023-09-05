@@ -27,6 +27,7 @@ export async function dev(rootPath?: string) {
   }
 
   // watch the file changed
+  const debounceCachedPath = new Set<string>();
   const debouncedWatcherHandler = debounce(
     async (pck: {
       rootPath: string;
@@ -43,10 +44,16 @@ export async function dev(rootPath?: string) {
           depProjectPath.map((projPath) =>
             copy(pck.rootPath, `${projPath}/node_modules/${pck.name}`, {
               overwrite: true,
+              filter(path) {
+                if (path === 'package.json') return true;
+                return debounceCachedPath.has(`${pck.rootPath}/${path}`);
+              },
             }),
           ),
         );
         log(chalk.green(`Copying ${pck.name} Done.`));
+
+        debounceCachedPath.clear();
       } catch (e) {
         log((e as Error).message);
       }
@@ -56,6 +63,7 @@ export async function dev(rootPath?: string) {
   const watchers = selectedPackages?.map((pck) => {
     return watch(pck.config.watch, { recursive: true }, (_, fileName) => {
       log(chalk.yellow(`${pck.name}: ${fileName} is updated`));
+      debounceCachedPath.add(fileName);
       debouncedWatcherHandler(pck);
     });
   });
@@ -65,7 +73,9 @@ export async function dev(rootPath?: string) {
     )} are being watched...`,
   );
 
-  const configWatcher = configService.startWatch();
+  const configWatcher = configService.startWatch(() =>
+    selectedPackages.forEach((pck) => debouncedWatcherHandler(pck)),
+  );
 
   process.on('SIGINT', () => {
     log('\nRemoving watchers...');

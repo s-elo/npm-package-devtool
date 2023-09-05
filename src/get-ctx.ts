@@ -44,10 +44,11 @@ class ConfigService {
     }
   }
 
-  public startWatch() {
+  public startWatch(cb?: () => void) {
     this._watchCloser = watch(NPD_CONTEXT_DIR, { recursive: true }, () => {
       console.log('config file changed.');
       this.getConfig(true);
+      cb && cb();
     });
 
     return this._watchCloser;

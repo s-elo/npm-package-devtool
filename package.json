@@ -38,7 +38,7 @@
     "node-watch": "^0.7.4",
     "recursive-copy": "^2.0.14"
   },
-  "license": "ISC",
+  "license": "MIT",
   "engines": {
     "node": ">= 16"
   }
