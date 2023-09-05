@@ -11,13 +11,18 @@
     "bin"
   ],
   "scripts": {
-    "prepublishOnly": "pnpm build",
-    "build": "rm -rf dist && tsc --p tsconfig.build.json",
-    "dev": "tsc --p tsconfig.build.json --watch",
+    "dev": "rollup --config --watch",
+    "ts-check": "tsc --noEmit",
+    "build": "rm -rf dist && rollup --config",
+    "prepublishOnly": "pnpm ts-check && pnpm build",
     "release": "bumpp && npm publish",
-    "version:feature": "node ./scripts/version-feature.mjs"
+    "version:feature": "node ./scripts/version-feature.mjs",
+    "versions": "npm view @shopee/npm-devtool versions"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
     "@types/debounce": "^3.0.0",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^20.5.7",
@@ -28,6 +33,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.3.2",
+    "rollup": "^3.28.1",
+    "rollup-plugin-typescript2": "^0.35.0",
     "simple-git": "^3.19.1",
     "typescript": "^5.2.2"
   },
