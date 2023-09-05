@@ -6,6 +6,7 @@ import { NpdConfig } from '../type';
 import { log } from 'node:console';
 import { link } from './link';
 import { configService } from '../get-ctx';
+import fs from 'fs';
 
 export async function dev(rootPath?: string) {
   const chalk = (await import('chalk')).default;
@@ -61,6 +62,16 @@ export async function dev(rootPath?: string) {
     500,
   );
   const watchers = selectedPackages?.map((pck) => {
+    for (const watchPath of pck.config.watch) {
+      if (!fs.existsSync(watchPath)) {
+        log(
+          chalk.red(
+            `${watchPath} can not be watched for ${pck.name} because it does not exist.`,
+          ),
+        );
+        process.exit(1);
+      }
+    }
     return watch(pck.config.watch, { recursive: true }, (_, fileName) => {
       log(chalk.yellow(`${pck.name}: ${fileName} is updated`));
       debounceCachedPath.add(fileName);

@@ -10,6 +10,8 @@ export default {
     format: 'cjs',
   },
   plugins: [
+    commonjs({ defaultIsModuleExports: true }),
+    json(),
     typescript({
       tsconfig: './tsconfig.build.json',
     }),
@@ -18,7 +20,5 @@ export default {
       browser: false,
       exportConditions: ['node'],
     }),
-    commonjs(),
-    json(),
   ],
 };

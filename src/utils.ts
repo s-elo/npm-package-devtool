@@ -17,21 +17,35 @@ export const safeJsonParse = (value: string, fallback?: unknown) => {
   }
 };
 
-export const resolveNpdConfig = (
-  packageJson: { npd?: NpdConfig },
-  packagePath: string,
-): Required<NpdConfig> => {
-  const { watch, start } = packageJson.npd ?? {};
+export const resolveNpdConfig = (packagePath: string) => {
+  const packageRootPath = dirname(packagePath);
 
+  const packageJson = safeJsonParse(fs.readFileSync(packagePath, 'utf8')) as {
+    npd: NpdConfig;
+    name: string;
+  };
+  const { watch = [packagePath], start = [] } = packageJson.npd ?? {};
   return {
-    watch: watch ? watch.map((w) => resolve(packagePath, w)) : [packagePath],
-    start: start ?? [],
+    rootPath: packageRootPath,
+    name: packageJson.name ?? 'root',
+    config: {
+      watch: watch.map((w) => resolve(packageRootPath, w)),
+      start,
+    },
   };
 };
 
-export const getPackages = (rootPath = '') => {
-  const searchPath = resolve(cwd(), rootPath);
+export const isGitRepo = () => {
+  try {
+    return !!execSync('git rev-parse --is-inside-work-tree 2>/dev/null', {
+      encoding: 'utf8',
+    });
+  } catch {
+    return false;
+  }
+};
 
+export const getPackagesByGit = (searchPath = '') => {
   try {
     const stdout = execSync(
       `git grep -E "\\"name\\"\\:\\s*\\".+\\"" -- "${searchPath}/*package.json"`,
@@ -43,19 +57,37 @@ export const getPackages = (rootPath = '') => {
       .map((line) => {
         const [filePath] = line.split(':');
         const packagePath = resolve(cwd(), filePath);
-        const packageRootPath = dirname(packagePath);
 
-        const packageJson = safeJsonParse(fs.readFileSync(packagePath, 'utf8'));
-
-        return {
-          rootPath: packageRootPath,
-          name: packageJson.name ?? 'root',
-          config: resolveNpdConfig(packageJson, packageRootPath),
-        };
+        return resolveNpdConfig(packagePath);
       });
   } catch (e) {
     log((e as Error).message);
   }
+};
+
+export const getPackagesByTraverse = (searchPath = '') => {
+  const ignoredDirs = ['node_modules'];
+  return fs
+    .readdirSync(searchPath)
+    .filter((d) => !ignoredDirs.includes(d))
+    .reduce<ReturnType<typeof resolveNpdConfig>[]>((packages, blob) => {
+      const fullPath = resolve(searchPath, blob);
+
+      if (blob === 'package.json') {
+        packages.push(resolveNpdConfig(fullPath));
+      } else if (fs.statSync(fullPath).isDirectory()) {
+        packages.push(...getPackagesByTraverse(fullPath));
+      }
+
+      return packages;
+    }, []);
+};
+
+export const getPackages = (rootPath = '') => {
+  const searchPath = resolve(cwd(), rootPath);
+  return isGitRepo()
+    ? getPackagesByGit(searchPath)
+    : getPackagesByTraverse(searchPath);
 };
 
 export const selector = async ({
