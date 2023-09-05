@@ -14,7 +14,8 @@
     "prepublishOnly": "pnpm build",
     "build": "rm -rf dist && tsc --p tsconfig.build.json",
     "dev": "tsc --p tsconfig.build.json --watch",
-    "release": "bumpp && npm publish"
+    "release": "bumpp && npm publish",
+    "version:feature": "node ./scripts/version-feature.mjs"
   },
   "devDependencies": {
     "@types/debounce": "^3.0.0",
@@ -27,6 +28,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.3.2",
+    "simple-git": "^3.19.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
@@ -41,5 +43,6 @@
   "license": "MIT",
   "engines": {
     "node": ">= 16"
-  }
+  },
+  "packageManager": "pnpm@8.6.9"
 }
