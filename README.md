@@ -8,6 +8,8 @@ When developing npm packages locally, we usually use the `npm/yarn/pnpm link` fe
 
 `NPD` helps you auto copy the built packages to the target place based on the `file watcher` and the `relations among npm packages and the target repo` you want to develop.
 
+There is a global config file `~/shopee-npm-package-dev-tool/link.json` used to store the relations among packages and target repos.
+
 ## Installation
 
 ```bash
@@ -23,9 +25,28 @@ $ yarn/pnpm link
 $ npd --version
 ```
 
-## Usage
+## Quick Start
 
-There is a global config file `~/shopee-npm-package-dev-tool/link.json` used to store the relations among packages and target repos.
+- `package repo`: repos of the packages you want to develop.
+- `target repo`: repos to which you want to link the developed packages
+
+1. **config at the package.json of the packages.** `watch` is the files/directories that you want to watch, `start` contains the commands you want to execute when developing. Take below config as an example, `tsc --watch` will watch your source code to rebuild the code to the `dist`, then we will watch the updates of `dist` and copy the updated files to the target repos.
+```json
+{
+  "npd": {
+    "watch": ["./dist"],
+    "start": ["tsc --watch"],
+  }
+}
+```
+2. **`npd dev` at the rootPath of package repo**. select the packages you want to dev.
+3. **`npd add` at the target repo**. select the packages that you want to add.
+
+Now once you change the source code of the package, it should auto copy the updated content to the target repo.
+
+To remove the effects, `npd remove` at the target repo to remove the added packages, and reinstall the `node_modules`.
+
+## Commands
 
 ### List
 
@@ -79,7 +100,7 @@ Before using this function, you might need to add some config at the `package.js
 - `start`: command that needs to execute when developing; commands at the array execute sequentially; commands among different packages execute parallelly. 
 
 ```bash
-# at the repo root path
+# at the package(s) repo root path
 $ npd dev
 ```
 
@@ -97,7 +118,7 @@ Selected packages at `npd dev` will be auto stored(linked) to the global config
 Store the package names at current repo to the global config.
 
 ```bash
-# at a repo root path
+# at the package(s) repo root path
 $ npd link
 ```
 
@@ -152,4 +173,22 @@ You can also specify the packages, concatenate with ','.
 
 ```bash
 $ npd remove package1,package2
+```
+
+## Develop
+
+```bash
+$ pnpm dev
+```
+
+## Publish
+
+```bash
+$ pnpm release
+```
+
+For feature version, use the script to publish it at another branch.
+
+```bash
+$ pnpm version:feature
 ```
