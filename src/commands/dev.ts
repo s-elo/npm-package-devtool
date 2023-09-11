@@ -2,7 +2,7 @@ import watch from 'node-watch';
 import debounce from 'debounce';
 import concurrently from 'concurrently';
 import copy from 'recursive-copy';
-import { NpdConfig } from '../type';
+import { NptConfig } from '../type';
 import { log } from 'node:console';
 import { link } from './link';
 import { configService } from '../get-ctx';
@@ -33,7 +33,7 @@ export async function dev(rootPath?: string) {
     async (pck: {
       rootPath: string;
       name: string;
-      config: Required<NpdConfig>;
+      config: Required<NptConfig>;
     }) => {
       try {
         const pckInfo = configService.getConfig();
