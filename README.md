@@ -1,4 +1,4 @@
-# Npm Package Dev Tool(NPD)
+# Npm Package Dev Tool(NPT)
 
 A tool for developing npm package(s).
 
@@ -6,23 +6,23 @@ A tool for developing npm package(s).
 
 When developing npm packages locally, we usually use the `npm/yarn/pnpm link` feature to act as symlinked packages. However, this often brings some [constraints and problems](https://github.com/yarnpkg/yarn/issues/1761#issuecomment-259706202) like dependency resolution issues, symlink interoperability between file systems, etc. So you might try to copy the built packages to the place where you want to develop, which might be trouble-less but quite a hassle to do.
 
-`NPD` helps you auto copy the built packages to the target place based on the `file watcher` and the `relations among npm packages and the target repo` you want to develop.
+`NPT` helps you auto copy the built packages to the target place based on the `file watcher` and the `relations among npm packages and the target repo` you want to develop.
 
 There is a global config file `~/shopee-npm-package-dev-tool/link.json` used to store the relations among packages and target repos.
 
 ## Installation
 
 ```bash
-$ yarn/pnpm add -g @shopee/npm-devtool
+$ pnpm add -g @shopee/npm-devtool
 
 # or clone the repo to your local to link
 $ git clone gitlab@git.garena.com:shopee/seller-fe/tech/platform-tech/npm-package-devtool.git
 #  build
 $ pnpm build
 # at repo root path
-$ yarn/pnpm link
+$ pnpm link
 
-$ npd --version
+$ npt --version
 ```
 
 ## Quick Start
@@ -33,18 +33,18 @@ $ npd --version
 1. **config at the package.json of the packages.** `watch` is the files/directories that you want to watch, `start` contains the commands you want to execute when developing. Take below config as an example, `tsc --watch` will watch your source code to rebuild the code to the `dist`, then we will watch the updates of `dist` and copy the updated files to the target repos.
 ```json
 {
-  "npd": {
+  "npt": {
     "watch": ["./dist"],
     "start": ["tsc --watch"],
   }
 }
 ```
-2. **`npd dev` at the rootPath of package repo**. select the packages you want to dev.
-3. **`npd add` at the target repo**. select the packages that you want to add.
+2. **`npt dev` at the rootPath of package repo**. select the packages you want to dev.
+3. **`npt add` at the target repo**. select the packages that you want to add.
 
 Now once you change the source code of the package, it should auto copy the updated content to the target repo.
 
-To remove the effects, `npd remove` at the target repo to remove the added packages, and reinstall the `node_modules`.
+To remove the effects, `npt remove` at the target repo to remove the added packages, and reinstall the `node_modules`.
 
 ## Commands
 
@@ -53,7 +53,7 @@ To remove the effects, `npd remove` at the target repo to remove the added packa
 Checkout the relations at the global config file.
 
 ```bash
-$ npd list
+$ npt list
 {
   '@seller/seller-notification': [],
   '@seller-portal/core': [ '/Users/xxx/xxx/xxx' ]
@@ -63,7 +63,7 @@ $ npd list
 List all the target repo path of a package
 
 ```bash
-$ npd list package1
+$ npt list package1
 /Users/xxx/xxx/xxx
 ```
 
@@ -71,14 +71,14 @@ List all the added packages of current target repo.
 
 ```bash
 # at the target repo root path
-$ npd list -c
+$ npt list -c
 @seller-portal/core
 ```
 
 List all the linked packages
 
 ```bash
-$ npd list -p
+$ npt list -p
 @seller/seller-notification
 @seller-portal/core
 ```
@@ -89,29 +89,29 @@ Before using this function, you might need to add some config at the `package.js
 
 ```json
 {
-  "npd": {
+  "npt": {
     "watch": ["./esm", "./dist"],
     "start": ["tsc --watch"],
   }
 }
 ```
 
-- `watch`: files/folders that need to be watched by NPD, when they are updated, NPD will copy the updated content to the related repos. `package.json` will always be watched. NPD watches all the files of the package by default.
+- `watch`: files/folders that need to be watched by npt, when they are updated, npt will copy the updated content to the related repos. `package.json` will always be watched. npt watches all the files of the package by default.
 - `start`: command that needs to execute when developing; commands at the array execute sequentially; commands among different packages execute parallelly. 
 
 ```bash
 # at the package(s) repo root path
-$ npd dev
+$ npt dev
 ```
 
 You can also narrow down the scanning path.
 
 ```bash
 # only collect package names at ./packages folder for you to dev
-$ npd dev ./packages
+$ npt dev ./packages
 ```
 
-Selected packages at `npd dev` will be auto stored(linked) to the global config
+Selected packages at `npt dev` will be auto stored(linked) to the global config
 
 ### Link
 
@@ -119,7 +119,7 @@ Store the package names at current repo to the global config.
 
 ```bash
 # at the package(s) repo root path
-$ npd link
+$ npt link
 ```
 
 It will scan the repo to collect all the package names for you to select.
@@ -128,7 +128,7 @@ You can also narrow down the scanning path.
 
 ```bash
 # only collect package names at ./packages folder
-$ npd link ./packages
+$ npt link ./packages
 ```
 
 ### Unlink
@@ -136,13 +136,13 @@ $ npd link ./packages
 Delete packages stored at the global config. Note that it will also delete all the relations with target repos of the packages.
 
 ```bash
-$ npd unlink
+$ npt unlink
 ```
 
 You can also specify the packages, concatenate with ','.
 
 ```bash
-$ npd unlink package1,package2
+$ npt unlink package1,package2
 ```
 
 ### Add
@@ -151,13 +151,13 @@ Create a relation among linked packages with a target repo path, so that when th
 
 ```bash
 # at the target repo root path
-$ npd add
+$ npt add
 ```
 
 You can also specify the packages, concatenate with ','.
 
 ```bash
-$ npd add package1,package2
+$ npt add package1,package2
 ```
 
 ### remove
@@ -166,13 +166,13 @@ Delete the relations among a target repo with its added packages.
 
 ```bash
 # at the target repo root path
-$ npd remove
+$ npt remove
 ```
 
 You can also specify the packages, concatenate with ','.
 
 ```bash
-$ npd remove package1,package2
+$ npt remove package1,package2
 ```
 
 ## Develop

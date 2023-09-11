@@ -4,7 +4,7 @@
   "description": "Npm Package Devtool",
   "author": "lichao@shopee.com",
   "bin": {
-    "npd": "./bin/index.mjs"
+    "npt": "./bin/index.mjs"
   },
   "files": [
     "dist",

@@ -1,4 +1,4 @@
-export type NpdConfig = {
+export type NptConfig = {
   watch?: string[];
   start?: string[];
 };

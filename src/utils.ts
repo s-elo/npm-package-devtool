@@ -2,7 +2,7 @@ import { resolve, dirname } from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { log } from 'node:console';
-import { NpdConfig } from './type';
+import { NptConfig } from './type';
 
 /**
  * get the path based on the path where to execute the command
@@ -17,14 +17,14 @@ export const safeJsonParse = (value: string, fallback?: unknown) => {
   }
 };
 
-export const resolveNpdConfig = (packagePath: string) => {
+export const resolveNptConfig = (packagePath: string) => {
   const packageRootPath = dirname(packagePath);
 
   const packageJson = safeJsonParse(fs.readFileSync(packagePath, 'utf8')) as {
-    npd: NpdConfig;
+    npt: NptConfig;
     name: string;
   };
-  const { watch = [packagePath], start = [] } = packageJson.npd ?? {};
+  const { watch = [packagePath], start = [] } = packageJson.npt ?? {};
   return {
     rootPath: packageRootPath,
     name: packageJson.name ?? 'root',
@@ -58,7 +58,7 @@ export const getPackagesByGit = (searchPath = '') => {
         const [filePath] = line.split(':');
         const packagePath = resolve(cwd(), filePath);
 
-        return resolveNpdConfig(packagePath);
+        return resolveNptConfig(packagePath);
       });
   } catch (e) {
     log((e as Error).message);
@@ -70,11 +70,11 @@ export const getPackagesByTraverse = (searchPath = '') => {
   return fs
     .readdirSync(searchPath)
     .filter((d) => !ignoredDirs.includes(d))
-    .reduce<ReturnType<typeof resolveNpdConfig>[]>((packages, blob) => {
+    .reduce<ReturnType<typeof resolveNptConfig>[]>((packages, blob) => {
       const fullPath = resolve(searchPath, blob);
 
       if (blob === 'package.json') {
-        packages.push(resolveNpdConfig(fullPath));
+        packages.push(resolveNptConfig(fullPath));
       } else if (fs.statSync(fullPath).isDirectory()) {
         packages.push(...getPackagesByTraverse(fullPath));
       }
