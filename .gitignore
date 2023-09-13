@@ -1,0 +1,13 @@
+logs/
+npm-debug.log
+node_modules/
+coverage/
+.idea/
+run/
+log/
+.DS_Store
+.vscode
+*.lock
+*.swp
+
+dist
