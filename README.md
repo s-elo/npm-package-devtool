@@ -30,15 +30,19 @@ $ npt --version
 - `package repo`: repos of the packages you want to develop.
 - `target repo`: repos to which you want to link the developed packages
 
-1. **config at the package.json of the packages.** `watch` is the files/directories that you want to watch, `start` contains the commands you want to execute when developing. Take below config as an example, `tsc --watch` will watch your source code to rebuild the code to the `dist`, then we will watch the updates of `dist` and copy the updated files to the target repos.
+1. **config at the package.json at root path.** `watch` is the files/directories that you want to watch, `start` contains the commands you want to execute when developing. Take below config as an example, `yarn build:esm --watch` will watch your source code to rebuild the code to the `dist`, then we will watch the updates of `dist` and copy the updated files to the target repos.
+
 ```json
 {
   "npt": {
     "watch": ["./dist"],
-    "start": ["tsc --watch"],
+    "start": ["yarn build:esm --watch"],
   }
 }
 ```
+
+> Note that for monorepo, we will use the config at root package.json if no config is specified at the package.json of the corresponding package. You can add different config at the package.json of the corresponding package to overwrite the root config.
+
 2. **`npt dev` at the rootPath of package repo**. select the packages you want to dev.
 3. **`npt add` at the target repo**. select the packages that you want to add.
 
@@ -85,7 +89,9 @@ $ npt list -p
 
 ### Dev
 
-Before using this function, you might need to add some config at the `package.json` of the corresponding npm package.
+Before using this function, you might need to add some config at the `package.json` of the corresponding npm package or **at the root path package.json**.
+
+> For monorepo, we will use the config at a package.json of a specific package if specified, otherwise using the config of root package.json.
 
 ```json
 {

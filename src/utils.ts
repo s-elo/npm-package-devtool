@@ -17,14 +17,41 @@ export const safeJsonParse = (value: string, fallback?: unknown) => {
   }
 };
 
+let rootNptConfig: NptConfig | null = null;
+/**
+ * get the npt config at root package.json
+ */
+export const getRootNptConfig = (): NptConfig => {
+  if (rootNptConfig) {
+    return rootNptConfig;
+  }
+
+  const rootPckPath = resolve(cwd(), './package.json');
+  if (!fs.existsSync(rootPckPath)) {
+    rootNptConfig = {};
+  } else {
+    const rootPckJson = safeJsonParse(fs.readFileSync(rootPckPath, 'utf8')) as {
+      npt?: NptConfig;
+    };
+
+    rootNptConfig = rootPckJson.npt ?? {};
+  }
+
+  return rootNptConfig;
+};
+
 export const resolveNptConfig = (packagePath: string) => {
   const packageRootPath = dirname(packagePath);
 
   const packageJson = safeJsonParse(fs.readFileSync(packagePath, 'utf8')) as {
-    npt: NptConfig;
+    npt?: NptConfig;
     name: string;
   };
-  const { watch = [packagePath], start = [] } = packageJson.npt ?? {};
+  const rootNptConfig = getRootNptConfig();
+  const {
+    watch = rootNptConfig.watch ?? [packagePath],
+    start = rootNptConfig.start ?? [],
+  } = packageJson.npt ?? {};
   return {
     rootPath: packageRootPath,
     name: packageJson.name ?? 'root',
