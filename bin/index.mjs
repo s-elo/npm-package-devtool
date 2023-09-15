@@ -4,6 +4,7 @@ import { program } from 'commander';
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'fs';
+import { execSync } from 'node:child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -17,7 +18,14 @@ program
   .command('dev')
   .description('develop npm package(s) of current repo.')
   .argument('[rootPath]', 'root path where to find packages')
-  .action(async (rootPath) => {
+  .option(
+    '-w, --watch <string>',
+    'specify watch files/dir, use "," to separate',
+  )
+  .option('-s, --start <string>', 'specify dev commands')
+  .action(async (rootPath, { watch, start }) => {
+    global.NPT_CURRENT_WATCH_PATH = watch;
+    global.NPT_CURRENT_START_PATH = start;
     (await import('../dist/index.js')).dev(rootPath);
   });
 
@@ -67,6 +75,16 @@ program
   )
   .action(async (pckNames) => {
     (await import('../dist/index.js')).unlink(pckNames);
+  });
+
+program
+  .command('upgrade')
+  .description('upgrade to latest version.')
+  .action(() => {
+    execSync(
+      'pnpm --registry https://npm.shopee.io/ install -g && pnpm --registry https://npm.shopee.io/ install -g @shopee/npm-devtool@latest && pnpm install -g',
+      { stdio: 'inherit' },
+    );
   });
 
 program.parse(process.argv).opts();

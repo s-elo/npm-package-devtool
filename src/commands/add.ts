@@ -31,7 +31,10 @@ async function addByNames(packageNames: string[]) {
       return;
     }
 
-    pckInfo[name].push(cwd());
+    if (!pckInfo[name].includes(cwd())) {
+      pckInfo[name].push(cwd());
+    }
+
     log(chalk.green(`package ${name} is added.`));
   });
 

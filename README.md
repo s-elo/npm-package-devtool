@@ -13,7 +13,7 @@ There is a global config file `~/shopee-npm-package-dev-tool/link.json` used to 
 ## Installation
 
 ```bash
-$ pnpm add -g @shopee/npm-devtool
+$ pnpm --registry https://npm.shopee.io/ install -g && pnpm --registry https://npm.shopee.io/ install -g @shopee/npm-devtool && pnpm install -g
 
 # or clone the repo to your local to link
 $ git clone gitlab@git.garena.com:shopee/seller-fe/tech/platform-tech/npm-package-devtool.git
@@ -22,9 +22,20 @@ $ pnpm install
 #  build
 $ pnpm build
 # at repo root path
-$ pnpm link ./
+$ pnpm link -g
 
 $ npt --version
+
+# to unlink
+$ pnpm uninstall -g @shopee/npm-devtool
+```
+
+## Upgrade
+
+make sure you have installed `pnpm`.
+
+```bash
+$ npt upgrade
 ```
 
 ## Quick Start
@@ -32,7 +43,11 @@ $ npt --version
 - `package repo`: repos of the packages you want to develop.
 - `target repo`: repos to which you want to link the developed packages
 
-1. **config at the package.json at root path.** `watch` is the files/directories that you want to watch, `start` contains the commands you want to execute when developing. Take below config as an example, `yarn build:esm --watch` will watch your source code to rebuild the code to the `dist`, then we will watch the updates of `dist` and copy the updated files to the target repos.
+1. **`npt dev -w "./esm,./dist" -s "tsc --watch && xxx --watch"` at the rootPath of package repo** to specify `watch` and `start` and select the packages you want to dev.
+
+`watch` is the files/directories that you want to watch, `start` contains the commands you want to execute when developing. Take below config as an example, `yarn build:esm --watch` will watch your source code to rebuild the code to the `dist`, then we will watch the updates of `dist` and copy the updated files to the target repos.
+
+or you can **config at the package.json at root path.**
 
 ```json
 {
@@ -45,8 +60,7 @@ $ npt --version
 
 > Note that for monorepo, we will use the config at root package.json if no config is specified at the package.json of the corresponding package. You can add different config at the package.json of the corresponding package to overwrite the root config.
 
-2. **`npt dev` at the rootPath of package repo**. select the packages you want to dev.
-3. **`npt add` at the target repo**. select the packages that you want to add.
+1. **`npt add` at the target repo**. select the packages that you want to add.
 
 Now once you change the source code of the package, it should auto copy the updated content to the target repo.
 
@@ -186,8 +200,13 @@ $ npt remove package1,package2
 ## Develop
 
 ```bash
+# at repo root path
+$ pnpm link -g
+
 $ pnpm dev
 ```
+
+To unlink, run `pnpm uninstall -g @shopee/npm-devtool`.
 
 ## Publish
 
