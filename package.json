@@ -1,6 +1,6 @@
 {
   "name": "@shopee/npm-devtool",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Npm Package Devtool",
   "author": "lichao@shopee.com",
   "bin": {
