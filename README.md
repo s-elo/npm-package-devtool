@@ -17,10 +17,12 @@ $ pnpm add -g @shopee/npm-devtool
 
 # or clone the repo to your local to link
 $ git clone gitlab@git.garena.com:shopee/seller-fe/tech/platform-tech/npm-package-devtool.git
+# install
+$ pnpm install
 #  build
 $ pnpm build
 # at repo root path
-$ pnpm link
+$ pnpm link ./
 
 $ npt --version
 ```
