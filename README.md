@@ -13,6 +13,8 @@ There is a global config file `~/shopee-npm-package-dev-tool/link.json` used to 
 ## Installation
 
 ```bash
+$ npm -g install pnpm
+
 $ pnpm --registry https://npm.shopee.io/ install -g && pnpm --registry https://npm.shopee.io/ install -g @shopee/npm-devtool && pnpm install -g
 
 # or clone the repo to your local to link
