@@ -49,14 +49,17 @@ export const resolveNptConfig = (packagePath: string) => {
   };
   const rootNptConfig = getRootNptConfig();
   const {
-    watch = rootNptConfig.watch ?? [packagePath],
-    start = rootNptConfig.start ?? [],
+    watch = global.NPT_CURRENT_WATCH_PATH?.split(',') ??
+      rootNptConfig.watch ?? [packagePath],
+    start = global.NPT_CURRENT_START_PATH?.split('&&') ??
+      rootNptConfig.start ??
+      [],
   } = packageJson.npt ?? {};
   return {
     rootPath: packageRootPath,
     name: packageJson.name ?? 'root',
     config: {
-      watch: watch.map((w) => resolve(packageRootPath, w)),
+      watch: watch.map((w: string) => resolve(packageRootPath, w)),
       start,
     },
   };

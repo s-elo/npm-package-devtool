@@ -40,17 +40,21 @@ export async function dev(rootPath?: string) {
         const depProjectPath = pckInfo[pck.name];
         if (!depProjectPath?.length) return;
 
-        log(chalk.gray(`Copying ${pck.name}...`));
         await Promise.all(
-          depProjectPath.map((projPath) =>
+          depProjectPath.map((projPath) => {
+            log(
+              chalk.gray(
+                `Copying ${pck.name} to ${projPath}/node_modules/${pck.name}...`,
+              ),
+            );
             copy(pck.rootPath, `${projPath}/node_modules/${pck.name}`, {
               overwrite: true,
               filter(path) {
                 if (path === 'package.json') return true;
                 return debounceCachedPath.has(`${pck.rootPath}/${path}`);
               },
-            }),
-          ),
+            });
+          }),
         );
         log(chalk.green(`Copying ${pck.name} Done.`));
 
