@@ -40,6 +40,10 @@ export async function dev(rootPath?: string) {
         const depProjectPath = pckInfo[pck.name];
         if (!depProjectPath?.length) return;
 
+        // avoid being overwritten by next debounce run
+        const updatedPath = new Set([...debounceCachedPath]);
+        debounceCachedPath.clear();
+
         await Promise.all(
           depProjectPath.map((projPath) => {
             log(
@@ -51,14 +55,12 @@ export async function dev(rootPath?: string) {
               overwrite: true,
               filter(path) {
                 if (path === 'package.json') return true;
-                return debounceCachedPath.has(`${pck.rootPath}/${path}`);
+                return updatedPath.has(`${pck.rootPath}/${path}`);
               },
             });
           }),
         );
         log(chalk.green(`Copying ${pck.name} Done.`));
-
-        debounceCachedPath.clear();
       } catch (e) {
         log((e as Error).message);
       }
