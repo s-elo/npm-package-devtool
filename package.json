@@ -18,7 +18,6 @@
     "release": "bumpp && npm publish",
     "version:feature": "node ./scripts/version-feature.mjs",
     "versions": "npm view @shopee/npm-devtool versions",
-    "preinstall": "npx only-allow pnpm",
     "prepare": "git config --local core.hooksPath ./.git/hooks/ && simple-git-hooks"
   },
   "devDependencies": {

@@ -12,21 +12,34 @@ There is a global config file `~/shopee-npm-package-dev-tool/link.json` used to 
 
 ## Installation
 
+### Install Globally
+
+`yarn add @shopee/npm-devtool -g` or `npm -g install @shopee/npm-devtool`.
+
+for `pnpm`: 
+
 ```bash
 $ npm -g install pnpm
 
 $ pnpm --registry https://npm.shopee.io/ install -g && pnpm --registry https://npm.shopee.io/ install -g @shopee/npm-devtool && pnpm install -g
 
-# or clone the repo to your local to link
+# if not work, try to install the pnpm globally first
+$ npx pnpm install --global pnpm
+
+$ npt --version
+```
+
+### Clone Repo To Link
+
+```bash
 $ git clone gitlab@git.garena.com:shopee/seller-fe/tech/platform-tech/npm-package-devtool.git
+$ cd npm-package-devtool
 # install
 $ pnpm install
 #  build
 $ pnpm build
 # at repo root path
 $ pnpm link -g
-
-$ npt --version
 
 # to unlink
 $ pnpm uninstall -g @shopee/npm-devtool
