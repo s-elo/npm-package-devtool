@@ -88,7 +88,7 @@ To remove the effects, `npt remove` at the target repo to remove the added packa
 Checkout the relations at the global config file.
 
 ```bash
-$ npt list
+$ npt list -a
 {
   '@seller/seller-notification': [],
   '@seller-portal/core': [ '/Users/xxx/xxx/xxx' ]
@@ -106,7 +106,7 @@ List all the added packages of current target repo.
 
 ```bash
 # at the target repo root path
-$ npt list -c
+$ npt list
 @seller-portal/core
 ```
 

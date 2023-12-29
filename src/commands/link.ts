@@ -1,4 +1,5 @@
 import { configService } from '../get-ctx';
+import { ChoiceType } from '../type';
 import { getPackages, selector } from '../utils';
 import { log } from 'node:console';
 
@@ -15,8 +16,25 @@ export async function link(rootPath = '') {
     process.exit(1);
   }
 
+  const pckInfo = configService.getConfig();
+  const allPckNames = packages
+    ?.map((p) => {
+      const check: ChoiceType[0] = {
+        value: p.name,
+        name: p.name,
+        checked: false,
+        disabled: false,
+      };
+      if (pckInfo[p.name]) {
+        check.checked = true;
+        check.disabled = 'Already Linked';
+      }
+      return check;
+    })
+    // put linked packages at the front
+    .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
   const packageNames = await selector({
-    choices: packages?.map((p) => p.name),
+    choices: allPckNames,
     message: 'choose the packages you want to develop',
   });
   const selectedPackages = packages?.filter((p) =>
@@ -25,7 +43,6 @@ export async function link(rootPath = '') {
   if (!selectedPackages?.length) return [];
 
   log(chalk.gray(`Linking packages: ${packageNames.join(',')}...`));
-  const pckInfo = configService.getConfig();
   selectedPackages.forEach((pck) => {
     pckInfo[pck.name] = pckInfo[pck.name] || [];
   });

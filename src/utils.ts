@@ -2,7 +2,7 @@ import { resolve, dirname } from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { log } from 'node:console';
-import { NptConfig } from './type';
+import { ChoiceType, NptConfig } from './type';
 
 /**
  * get the path based on the path where to execute the command
@@ -115,17 +115,17 @@ export const getPackagesByTraverse = (searchPath = '') => {
 
 export const getPackages = (rootPath = '') => {
   const searchPath = resolve(cwd(), rootPath);
-  return isGitRepo()
-    ? getPackagesByGit(searchPath)
-    : getPackagesByTraverse(searchPath);
+  return getPackagesByTraverse(searchPath);
 };
 
 export const selector = async ({
   choices,
   message,
+  selected = [],
 }: {
-  choices: string[];
+  choices: ChoiceType;
   message: string;
+  selected?: string[];
 }) => {
   const inquirer = (await import('inquirer')).default;
 
@@ -135,6 +135,7 @@ export const selector = async ({
       name: 'checkbox',
       message,
       choices,
+      default: selected,
     },
   ]);
 
