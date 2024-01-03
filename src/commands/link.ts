@@ -7,7 +7,7 @@ import { log } from 'node:console';
  * add the chosen packages to the npd context info store
  * @param rootPath path where to find the packages to link
  */
-export async function link(rootPath = '') {
+export async function link(rootPath = '', isDev = false) {
   const chalk = (await import('chalk')).default;
 
   const packages = getPackages(rootPath);
@@ -17,22 +17,24 @@ export async function link(rootPath = '') {
   }
 
   const pckInfo = configService.getConfig();
-  const allPckNames = packages
-    ?.map((p) => {
-      const check: ChoiceType[0] = {
-        value: p.name,
-        name: p.name,
-        checked: false,
-        disabled: false,
-      };
-      if (pckInfo[p.name]) {
-        check.checked = true;
-        check.disabled = 'Already Linked';
-      }
-      return check;
-    })
-    // put linked packages at the front
-    .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
+  const allPckNames = isDev
+    ? packages.map((p) => p.name)
+    : packages
+        ?.map((p) => {
+          const check: ChoiceType[0] = {
+            value: p.name,
+            name: p.name,
+            checked: false,
+            disabled: false,
+          };
+          if (pckInfo[p.name]) {
+            check.checked = true;
+            check.disabled = 'Already Linked';
+          }
+          return check;
+        })
+        // put linked packages at the front
+        .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
   const packageNames = await selector({
     choices: allPckNames,
     message: 'choose the packages you want to develop',

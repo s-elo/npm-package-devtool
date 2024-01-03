@@ -11,7 +11,7 @@ import fs from 'fs';
 export async function dev(rootPath?: string) {
   const chalk = (await import('chalk')).default;
 
-  const selectedPackages = await link(rootPath);
+  const selectedPackages = await link(rootPath, true);
   if (!selectedPackages?.length) return;
 
   // execute the dev commands
