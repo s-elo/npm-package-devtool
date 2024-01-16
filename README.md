@@ -19,6 +19,7 @@ $ pnpm add -g npm-package-devtool
 
 # or clone the repo to your local to link
 $ git clone git@github.com:s-elo/npm-package-devtool.git
+$ cd npm-package-devtool
 # install
 $ pnpm install
 #  build
