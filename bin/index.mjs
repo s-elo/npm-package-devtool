@@ -49,13 +49,10 @@ program
   .command('list')
   .description('list linked packages or added path.')
   .argument('[pckName]', 'list all the added path of a linked package')
-  .option(
-    '-c, --current',
-    'list all the packages that are added to current repo',
-  )
+  .option('-a, --all', 'list all the relations')
   .option('-p, --packages', 'list all the packages that are linked')
-  .action(async (pckName, { packages, current }) => {
-    (await import('../dist/index.js')).list(pckName, current, packages);
+  .action(async (pckName, { packages, all }) => {
+    (await import('../dist/index.js')).list(pckName, all, packages);
   });
 
 program
