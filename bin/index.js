@@ -1,15 +1,12 @@
 #!/usr/bin/env node
-// @ts-check
-import { program } from 'commander';
-import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import fs from 'fs';
-import { execSync } from 'node:child_process';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { program } = require('commander');
+const { resolve } = require('node:path');
+const fs = require('fs');
+const { execSync } = require('node:child_process');
 
 const packageJson = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'),
+  fs.readFileSync(resolve(__dirname, '../package.json'), 'utf8'),
 );
 
 program.version(packageJson.version);
@@ -26,7 +23,7 @@ program
   .action(async (rootPath, { watch, start }) => {
     global.NPT_CURRENT_WATCH_PATH = watch;
     global.NPT_CURRENT_START_PATH = start;
-    (await import('../dist/index.js')).dev(rootPath);
+    require('../dist/index.js').dev(rootPath);
   });
 
 program
@@ -34,7 +31,7 @@ program
   .description('link npm package(s) of current repo.')
   .argument('[rootPath]', 'root path where to find packages')
   .action(async (rootPath) => {
-    (await import('../dist/index.js')).link(rootPath);
+    require('../dist/index.js').link(rootPath);
   });
 
 program
@@ -42,7 +39,7 @@ program
   .description('add linked npm package(s) to current project.')
   .argument('[pckNames]', 'specify package names to add, split with ","')
   .action(async (pckNames) => {
-    (await import('../dist/index.js')).add(pckNames);
+    require('../dist/index.js').add(pckNames);
   });
 
 program
@@ -52,7 +49,7 @@ program
   .option('-a, --all', 'list all the relations')
   .option('-p, --packages', 'list all the packages that are linked')
   .action(async (pckName, { packages, all }) => {
-    (await import('../dist/index.js')).list(pckName, all, packages);
+    require('../dist/index.js').list(pckName, all, packages);
   });
 
 program
@@ -60,7 +57,7 @@ program
   .description('remove the linked packages of current repo.')
   .argument('[pckNames]', 'specify package names to be removed, split with ","')
   .action(async (pckNames) => {
-    (await import('../dist/index.js')).remove(pckNames);
+    require('../dist/index.js').remove(pckNames);
   });
 
 program
@@ -71,7 +68,7 @@ program
     'specify package names to be unlinked, split with ","',
   )
   .action(async (pckNames) => {
-    (await import('../dist/index.js')).unlink(pckNames);
+    require('../dist/index.js').unlink(pckNames);
   });
 
 program

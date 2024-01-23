@@ -4,7 +4,7 @@
   "description": "Npm Package Devtool",
   "author": "lichao@shopee.com",
   "bin": {
-    "npt": "./bin/index.mjs"
+    "npt": "./bin/index.js"
   },
   "files": [
     "dist",
@@ -41,7 +41,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "chalk": "^5.3.0",
+    "chalk": "^4.1.0",
     "commander": "^11.0.0",
     "concurrently": "^8.2.1",
     "debounce": "^1.2.1",
