@@ -29,9 +29,10 @@ const findAllPackageDestPaths = (rootPath: string, packageName: string) => {
       log(packages);
       return [];
     }
-    const all = packages.map((p) =>
-      join(rootPath, p, 'node_modules', packageName),
-    );
+    const all = [
+      ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
+      defaultPath,
+    ];
     return globSync(all);
   }
   return [defaultPath];
