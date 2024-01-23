@@ -40,6 +40,11 @@ export const getRootNptConfig = (): NptConfig => {
   return rootNptConfig;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const readPackage = <T = any>(packagePath: string) => {
+  return safeJsonParse(fs.readFileSync(packagePath, 'utf8')) as T;
+};
+
 export const resolveNptConfig = (packagePath: string) => {
   const packageRootPath = dirname(packagePath);
 

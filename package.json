@@ -45,6 +45,7 @@
     "commander": "^11.0.0",
     "concurrently": "^8.2.1",
     "debounce": "^1.2.1",
+    "glob": "^10.3.10",
     "inquirer": "^9.2.10",
     "node-watch": "^0.7.4",
     "recursive-copy": "^2.0.14"

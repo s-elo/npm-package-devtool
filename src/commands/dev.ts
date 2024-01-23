@@ -1,18 +1,48 @@
+import { log } from 'node:console';
+import fs from 'node:fs';
+import { join } from 'node:path';
 import watch from 'node-watch';
 import debounce from 'debounce';
 import concurrently from 'concurrently';
 import copy from 'recursive-copy';
+import { globSync } from 'glob';
+import chalk from 'chalk';
+
 import { NptConfig } from '../type';
-import { log } from 'node:console';
 import { link } from './link';
 import { configService } from '../get-ctx';
-import fs from 'fs';
+import { readPackage } from '../utils';
+
+const findAllPackageDestPaths = (rootPath: string, packageName: string) => {
+  const pkg = readPackage(join(rootPath, 'package.json'));
+  const defaultPath = join(rootPath, 'node_modules', packageName);
+  if (pkg.workspaces) {
+    const packages = Array.isArray(pkg.workspaces)
+      ? pkg.workspaces
+      : pkg.workspaces?.packages;
+    if (!Array.isArray(packages)) {
+      log(
+        chalk.red(
+          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
+        ),
+      );
+      log(packages);
+      return [];
+    }
+    const all = packages.map((p) =>
+      join(rootPath, p, 'node_modules', packageName),
+    );
+    return globSync(all);
+  }
+  return [defaultPath];
+};
 
 export async function dev(rootPath?: string) {
-  const chalk = (await import('chalk')).default;
-
   const selectedPackages = await link(rootPath, true);
-  if (!selectedPackages?.length) return;
+  if (!selectedPackages?.length) {
+    log(chalk.yellow('No packages selected'));
+    return;
+  }
 
   // execute the dev commands
   const commands = selectedPackages
@@ -25,6 +55,18 @@ export async function dev(rootPath?: string) {
     }));
   if (commands.length) {
     concurrently(commands);
+  } else {
+    log(chalk.red('Please specify how to start dev, there are 2 ways:'));
+    log(chalk.gray('1. in environment variable'));
+    log(chalk.gray('eg:  npt dev -s "yarn build:watch" -w "./esm"'));
+    log(chalk.gray('2. in package.json'));
+    log(
+      chalk.gray(
+        'eg: "npt": { "start": "yarn build:watch", "watch": "./esm" }',
+      ),
+    );
+    log(chalk.gray(''));
+    return;
   }
 
   // watch the file changed
@@ -44,22 +86,19 @@ export async function dev(rootPath?: string) {
         const updatedPath = new Set([...debounceCachedPath]);
         debounceCachedPath.clear();
 
-        await Promise.all(
-          depProjectPath.map((projPath) => {
-            log(
-              chalk.gray(
-                `Copying ${pck.name} to ${projPath}/node_modules/${pck.name}...`,
-              ),
-            );
-            copy(pck.rootPath, `${projPath}/node_modules/${pck.name}`, {
+        for (const projPath of depProjectPath) {
+          const packagePaths = findAllPackageDestPaths(projPath, pck.name);
+          for (const packagePath of packagePaths) {
+            log(chalk.gray(`Copying ${pck.name} to ${packagePath}...`));
+            copy(pck.rootPath, packagePath, {
               overwrite: true,
               filter(path) {
                 if (path === 'package.json') return true;
                 return updatedPath.has(`${pck.rootPath}/${path}`);
               },
             });
-          }),
-        );
+          }
+        }
         log(chalk.green(`Copying ${pck.name} Done.`));
       } catch (e) {
         log((e as Error).message);

@@ -1,7 +1,9 @@
+import { log } from 'node:console';
+
+import { loadConfig, saveConfig } from '../cache-config';
 import { configService } from '../get-ctx';
 import { ChoiceType } from '../type';
 import { getPackages, selector } from '../utils';
-import { log } from 'node:console';
 
 /**
  * add the chosen packages to the npd context info store
@@ -17,8 +19,14 @@ export async function link(rootPath = '', isDev = false) {
   }
 
   const pckInfo = configService.getConfig();
+  const cacheConfig = loadConfig();
   const allPckNames = isDev
-    ? packages.map((p) => p.name)
+    ? packages.map((p) => ({
+        value: p.name,
+        name: p.name,
+        checked: Boolean(cacheConfig.selectedPackages?.includes(p.name)),
+        disabled: false,
+      }))
     : packages
         ?.map((p) => {
           const check: ChoiceType[0] = {
@@ -49,6 +57,7 @@ export async function link(rootPath = '', isDev = false) {
     pckInfo[pck.name] = pckInfo[pck.name] || [];
   });
   configService.setConfig(pckInfo);
+  saveConfig({ selectedPackages: selectedPackages.map((p) => p.name) });
   log(chalk.green('Linking packages Done.'));
 
   return selectedPackages;
