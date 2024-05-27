@@ -1,7 +1,10 @@
+import { log } from 'node:console';
 import { resolve, dirname } from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
-import { log } from 'node:console';
+import chalk from 'chalk';
+import { globSync } from 'glob';
+
 import { ChoiceType, NptConfig } from './type';
 
 /**
@@ -80,47 +83,32 @@ export const isGitRepo = () => {
   }
 };
 
-export const getPackagesByGit = (searchPath = '') => {
-  try {
-    const stdout = execSync(
-      `git grep -E "\\"name\\"\\:\\s*\\".+\\"" -- "${searchPath}/*package.json"`,
-    ).toString();
-
-    return stdout
-      .split('\n')
-      .slice(0, -1)
-      .map((line) => {
-        const [filePath] = line.split(':');
-        const packagePath = resolve(cwd(), filePath);
-
-        return resolveNptConfig(packagePath);
-      });
-  } catch (e) {
-    log((e as Error).message);
-  }
-};
-
-export const getPackagesByTraverse = (searchPath = '') => {
-  const ignoredDirs = ['node_modules'];
-  return fs
-    .readdirSync(searchPath)
-    .filter((d) => !ignoredDirs.includes(d))
-    .reduce<ReturnType<typeof resolveNptConfig>[]>((packages, blob) => {
-      const fullPath = resolve(searchPath, blob);
-
-      if (blob === 'package.json') {
-        packages.push(resolveNptConfig(fullPath));
-      } else if (fs.statSync(fullPath).isDirectory()) {
-        packages.push(...getPackagesByTraverse(fullPath));
-      }
-
-      return packages;
-    }, []);
-};
-
 export const getPackages = (rootPath = '') => {
-  const searchPath = resolve(cwd(), rootPath);
-  return getPackagesByTraverse(searchPath);
+  const fileName = 'package.json';
+  const rootPkgPath = resolve(cwd(), rootPath, fileName);
+  const pkg = readPackage(rootPkgPath);
+  let allPkgs: string[] = [];
+  if (pkg.workspaces) {
+    const packages = Array.isArray(pkg.workspaces)
+      ? pkg.workspaces
+      : pkg.workspaces?.packages;
+    if (!Array.isArray(packages)) {
+      log(
+        chalk.red(
+          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
+        ),
+      );
+      log(packages);
+      return [];
+    }
+    const allPattern = packages.map((subPkg) =>
+      resolve(rootPath, subPkg, fileName),
+    );
+    allPkgs = globSync(allPattern);
+  } else {
+    allPkgs = [rootPkgPath];
+  }
+  return allPkgs.map((pkgPath) => resolveNptConfig(pkgPath));
 };
 
 export const selector = async ({
@@ -141,6 +129,8 @@ export const selector = async ({
       message,
       choices,
       default: selected,
+      pageSize: 20,
+      required: true,
     },
   ]);
 
