@@ -5,7 +5,8 @@ import { log } from 'node:console';
 export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const pckInfo = configService.getConfig();
   if (pckName) {
-    return log((pckInfo[pckName].usedBy ?? []).join('\n'));
+    const result = (pckInfo[pckName]?.usedBy ?? []).join('\n');
+    return log(result || `package ${pckName} not found`);
   }
 
   if (isAll) {

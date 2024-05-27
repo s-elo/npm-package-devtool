@@ -57,9 +57,9 @@ export const resolveNptConfig = (packagePath: string) => {
   };
   const rootNptConfig = getRootNptConfig();
   const {
-    watch = global.NPT_CURRENT_WATCH_PATH?.split(',') ??
+    watch = (global.NPT_CURRENT_WATCH_PATH as string)?.split(',') ??
       rootNptConfig.watch ?? [packagePath],
-    start = global.NPT_CURRENT_START_PATH?.split('&&') ??
+    start = (global.NPT_CURRENT_START_PATH as string)?.split('&&') ??
       rootNptConfig.start ??
       [],
   } = packageJson.npt ?? {};
