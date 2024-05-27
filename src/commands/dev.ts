@@ -135,7 +135,8 @@ export async function dev(rootPath?: string) {
 
   const config = selectedPackages.reduce((conf, pkg) => {
     conf[pkg.name] = {
-      homeDir: pkg.rootPath,
+      rootPath: pkg.rootPath,
+      config: pkg.config,
       usedBy: [],
     };
     return conf;

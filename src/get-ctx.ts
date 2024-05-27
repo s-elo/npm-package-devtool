@@ -1,10 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+
+import { NptConfig } from './type';
 import { safeJsonParse } from './utils';
 
 export interface ConfigItem {
-  homeDir: string;
+  rootPath: string;
+  config: NptConfig;
   usedBy: string[];
 }
 
@@ -37,7 +40,8 @@ class ConfigService {
 
     return Object.keys(config).reduce((newConfig, pkgName) => {
       newConfig[pkgName] = {
-        homeDir: '',
+        rootPath: '',
+        config: {},
         usedBy: [...(config[pkgName] as string[])],
       };
       return newConfig;
@@ -82,7 +86,8 @@ class ConfigService {
         continue;
       }
       config[pkgName] = {
-        homeDir: configItem.homeDir,
+        rootPath: configItem.rootPath,
+        config: configItem.config,
         usedBy: uniqMerge(config[pkgName].usedBy, configItem.usedBy),
       };
     }
