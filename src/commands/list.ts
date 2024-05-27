@@ -5,7 +5,7 @@ import { log } from 'node:console';
 export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const pckInfo = configService.getConfig();
   if (pckName) {
-    return log((pckInfo[pckName] ?? []).join('\n'));
+    return log((pckInfo[pckName].usedBy ?? []).join('\n'));
   }
 
   if (isAll) {
@@ -20,7 +20,7 @@ export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const curPath = cwd();
 
   Object.keys(pckInfo).forEach((pckName) => {
-    if (pckInfo[pckName].includes(curPath)) {
+    if (pckInfo[pckName].usedBy.includes(curPath)) {
       addedPackages.push(pckName);
     }
   });

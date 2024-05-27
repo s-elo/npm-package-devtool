@@ -19,7 +19,7 @@ export async function add(packageNamesStr?: string) {
         checked: false,
         disabled: false,
       };
-      if (nptConfig[name].includes(currentCwd)) {
+      if (nptConfig[name].usedBy.includes(currentCwd)) {
         check.checked = true;
         // currently enable to remove from add process.
         // check.disabled = 'Already added';
@@ -50,7 +50,7 @@ async function addByNames(packageNames: string[]) {
   Object.keys(pckInfo).forEach((name) => {
     if (packageNames.includes(name)) return;
 
-    pckInfo[name] = pckInfo[name].filter((p) => p !== curPath);
+    pckInfo[name].usedBy = pckInfo[name].usedBy.filter((p) => p !== curPath);
   });
 
   packageNames.forEach((name) => {
@@ -61,8 +61,8 @@ async function addByNames(packageNames: string[]) {
       return;
     }
 
-    if (!pckInfo[name].includes(curPath)) {
-      pckInfo[name].push(curPath);
+    if (!pckInfo[name].usedBy.includes(curPath)) {
+      pckInfo[name].usedBy.push(curPath);
     }
 
     log(chalk.green(`package ${name} is added.`));
