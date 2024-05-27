@@ -1,4 +1,4 @@
-import { log } from 'node:console';
+import { log, warn } from 'node:console';
 import fs from 'node:fs';
 import { join } from 'node:path';
 import watch from 'node-watch';
@@ -8,13 +8,17 @@ import copy from 'recursive-copy';
 import { globSync } from 'glob';
 import chalk from 'chalk';
 
-import { NptConfig } from '../type';
 import { link } from './link';
-import { configService } from '../get-ctx';
+import { Config, configService } from '../get-ctx';
 import { readPackage } from '../utils';
 
 const findAllPackageDestPaths = (rootPath: string, packageName: string) => {
-  const pkg = readPackage(join(rootPath, 'package.json'));
+  const pkgPath = join(rootPath, 'package.json');
+  if (!fs.existsSync(pkgPath)) {
+    warn(chalk.yellow('dest package not found', pkgPath));
+    return [];
+  }
+  const pkg = readPackage(pkgPath);
   const defaultPath = join(rootPath, 'node_modules', packageName);
   if (pkg.workspaces) {
     const packages = Array.isArray(pkg.workspaces)
@@ -36,6 +40,38 @@ const findAllPackageDestPaths = (rootPath: string, packageName: string) => {
     return globSync(all);
   }
   return [defaultPath];
+};
+
+const watchHandler = async (
+  pck: { rootPath: string; name: string },
+  debounceCachedPath: Set<string>,
+) => {
+  try {
+    const pckInfo = configService.getConfig();
+    const depProjectInfo = pckInfo[pck.name];
+    if (!depProjectInfo?.usedBy?.length) return;
+
+    // avoid being overwritten by next debounce run
+    const updatedPath = new Set([...debounceCachedPath]);
+    debounceCachedPath.clear();
+
+    for (const projPath of depProjectInfo.usedBy) {
+      const packagePaths = findAllPackageDestPaths(projPath, pck.name);
+      for (const packagePath of packagePaths) {
+        log(chalk.gray(`Copying ${pck.name} to ${packagePath}...`));
+        copy(pck.rootPath, packagePath, {
+          overwrite: true,
+          filter(path) {
+            if (path === 'package.json') return true;
+            return updatedPath.has(`${pck.rootPath}/${path}`);
+          },
+        });
+      }
+    }
+    log(chalk.green(`Copying ${pck.name} Done.`));
+  } catch (e) {
+    log((e as Error).message);
+  }
 };
 
 export async function dev(rootPath?: string) {
@@ -70,44 +106,10 @@ export async function dev(rootPath?: string) {
     return;
   }
 
-  // watch the file changed
-  const debounceCachedPath = new Set<string>();
-  const debouncedWatcherHandler = debounce(
-    async (pck: {
-      rootPath: string;
-      name: string;
-      config: Required<NptConfig>;
-    }) => {
-      try {
-        const pckInfo = configService.getConfig();
-        const depProjectPath = pckInfo[pck.name];
-        if (!depProjectPath?.length) return;
-
-        // avoid being overwritten by next debounce run
-        const updatedPath = new Set([...debounceCachedPath]);
-        debounceCachedPath.clear();
-
-        for (const projPath of depProjectPath) {
-          const packagePaths = findAllPackageDestPaths(projPath, pck.name);
-          for (const packagePath of packagePaths) {
-            log(chalk.gray(`Copying ${pck.name} to ${packagePath}...`));
-            copy(pck.rootPath, packagePath, {
-              overwrite: true,
-              filter(path) {
-                if (path === 'package.json') return true;
-                return updatedPath.has(`${pck.rootPath}/${path}`);
-              },
-            });
-          }
-        }
-        log(chalk.green(`Copying ${pck.name} Done.`));
-      } catch (e) {
-        log((e as Error).message);
-      }
-    },
-    500,
-  );
   const watchers = selectedPackages?.map((pck) => {
+    // watch the file changed
+    const debounceCachedPath = new Set<string>();
+    const debouncedWatcherHandler = debounce(watchHandler, 500);
     for (const watchPath of pck.config.watch) {
       if (!fs.existsSync(watchPath)) {
         log(
@@ -121,23 +123,28 @@ export async function dev(rootPath?: string) {
     return watch(pck.config.watch, { recursive: true }, (_, fileName) => {
       log(chalk.yellow(`${pck.name}: ${fileName} is updated`));
       debounceCachedPath.add(fileName);
-      debouncedWatcherHandler(pck);
+      debouncedWatcherHandler(pck, debounceCachedPath);
     });
   });
+
   log(
     `${chalk.green(
       selectedPackages.map((p) => p.name).join(','),
     )} are being watched...`,
   );
 
-  const configWatcher = configService.startWatch(() =>
-    selectedPackages.forEach((pck) => debouncedWatcherHandler(pck)),
-  );
+  const config = selectedPackages.reduce((conf, pkg) => {
+    conf[pkg.name] = {
+      homeDir: pkg.rootPath,
+      usedBy: [],
+    };
+    return conf;
+  }, {} as Config);
+  configService.updateConfig(config);
 
   process.on('SIGINT', () => {
     log('\nRemoving watchers...');
     watchers?.forEach((w) => w.close());
-    configWatcher.close();
     log(chalk.green('Removing watchers Done.'));
   });
 }
