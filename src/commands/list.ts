@@ -1,6 +1,8 @@
+import { log } from 'node:console';
+import { inspect } from 'node:util';
+
 import { configService } from '../get-ctx';
 import { cwd } from '../utils';
-import { log } from 'node:console';
 
 export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const pckInfo = configService.getConfig();
@@ -10,7 +12,7 @@ export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   }
 
   if (isAll) {
-    return log(pckInfo);
+    return log(inspect(pckInfo, false, null, true));
   }
 
   if (packages) {
