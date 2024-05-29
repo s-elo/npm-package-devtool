@@ -1,5 +1,5 @@
-import { log } from 'node:console';
-import { resolve, dirname } from 'path';
+import { log, warn } from 'node:console';
+import { resolve, dirname, join } from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import chalk from 'chalk';
@@ -149,4 +149,37 @@ export const confirm = async (question: string) => {
   ]);
 
   return result.confirm;
+};
+
+export const findAllPackageDestPaths = (
+  rootPath: string,
+  packageName: string,
+) => {
+  const pkgPath = join(rootPath, 'package.json');
+  if (!fs.existsSync(pkgPath)) {
+    warn(chalk.yellow('dest package not found', pkgPath));
+    return [];
+  }
+  const pkg = readPackage(pkgPath);
+  const defaultPath = join(rootPath, 'node_modules', packageName);
+  if (pkg.workspaces) {
+    const packages = Array.isArray(pkg.workspaces)
+      ? pkg.workspaces
+      : pkg.workspaces?.packages;
+    if (!Array.isArray(packages)) {
+      log(
+        chalk.red(
+          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
+        ),
+      );
+      log(packages);
+      return [];
+    }
+    const all = [
+      ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
+      defaultPath,
+    ];
+    return globSync(all);
+  }
+  return [defaultPath];
 };

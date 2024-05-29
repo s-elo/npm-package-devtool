@@ -1,46 +1,14 @@
-import { log, warn } from 'node:console';
+import { log, error } from 'node:console';
 import fs from 'node:fs';
-import { join } from 'node:path';
 import watch from 'node-watch';
 import debounce from 'debounce';
 import concurrently from 'concurrently';
 import copy from 'recursive-copy';
-import { globSync } from 'glob';
 import chalk from 'chalk';
 
 import { link } from './link';
 import { Config, configService } from '../get-ctx';
-import { readPackage } from '../utils';
-
-const findAllPackageDestPaths = (rootPath: string, packageName: string) => {
-  const pkgPath = join(rootPath, 'package.json');
-  if (!fs.existsSync(pkgPath)) {
-    warn(chalk.yellow('dest package not found', pkgPath));
-    return [];
-  }
-  const pkg = readPackage(pkgPath);
-  const defaultPath = join(rootPath, 'node_modules', packageName);
-  if (pkg.workspaces) {
-    const packages = Array.isArray(pkg.workspaces)
-      ? pkg.workspaces
-      : pkg.workspaces?.packages;
-    if (!Array.isArray(packages)) {
-      log(
-        chalk.red(
-          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
-        ),
-      );
-      log(packages);
-      return [];
-    }
-    const all = [
-      ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
-      defaultPath,
-    ];
-    return globSync(all);
-  }
-  return [defaultPath];
-};
+import { findAllPackageDestPaths } from '../utils';
 
 const watchHandler = async (
   pck: { rootPath: string; name: string },
@@ -70,7 +38,7 @@ const watchHandler = async (
     }
     log(chalk.green(`Copying ${pck.name} Done.`));
   } catch (e) {
-    log((e as Error).message);
+    error('watchHandler error', e);
   }
 };
 

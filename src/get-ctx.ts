@@ -5,13 +5,13 @@ import path from 'path';
 import { NptConfig } from './type';
 import { safeJsonParse } from './utils';
 
-export interface ConfigItem {
+export interface PackageInfo {
   rootPath: string;
   config: NptConfig;
   usedBy: string[];
 }
 
-export type Config = Record<string, ConfigItem>;
+export type Config = Record<string, PackageInfo>;
 
 export const NPD_CONTEXT_DIR = path.resolve(
   os.homedir(),
@@ -32,7 +32,7 @@ class ConfigService {
   }
 
   private compatibleForOldFormat(
-    config: Record<string, ConfigItem | string[]>,
+    config: Record<string, PackageInfo | string[]>,
   ) {
     if (!Array.isArray(config[Object.keys(config)[0]])) {
       return config as Config;
