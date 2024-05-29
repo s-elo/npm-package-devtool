@@ -10,6 +10,7 @@
     "dist",
     "bin"
   ],
+  "homepage": "https://git.garena.com/shopee/seller-fe/tech/platform-tech/npm-package-devtool",
   "scripts": {
     "dev": "rollup --config --watch",
     "ts-check": "tsc --noEmit",
