@@ -12,9 +12,9 @@
   ],
   "homepage": "https://git.garena.com/shopee/seller-fe/tech/platform-tech/npm-package-devtool",
   "scripts": {
-    "dev": "rollup --config --watch",
-    "ts-check": "tsc --noEmit",
-    "build": "rm -rf dist && rollup --config",
+    "dev": "tsc --watch",
+    "ts-check": "tsc -p tsconfig.build.json --noEmit",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "pnpm ts-check && pnpm build",
     "release": "bumpp && npm publish",
     "version:feature": "node ./scripts/version-feature.mjs",
@@ -22,8 +22,6 @@
     "prepare": "git config --local core.hooksPath ./.git/hooks/ && simple-git-hooks"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-json": "^6.0.0",
     "@types/debounce": "^3.0.0",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^20.5.7",
@@ -35,8 +33,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "lint-staged": "^14.0.1",
     "prettier": "^2.3.2",
-    "rollup": "^3.28.1",
-    "rollup-plugin-typescript2": "^0.35.0",
     "simple-git": "^3.19.1",
     "simple-git-hooks": "^2.9.0",
     "typescript": "^5.2.2"
@@ -65,6 +61,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">= 16"
+    "node": ">= 18"
   }
 }
