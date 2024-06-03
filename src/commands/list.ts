@@ -1,15 +1,18 @@
+import { log } from 'node:console';
+import { inspect } from 'node:util';
+
 import { configService } from '../get-ctx';
 import { cwd } from '../utils';
-import { log } from 'node:console';
 
 export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const pckInfo = configService.getConfig();
   if (pckName) {
-    return log((pckInfo[pckName] ?? []).join('\n'));
+    const result = (pckInfo[pckName]?.usedBy ?? []).join('\n');
+    return log(result || `package ${pckName} not found`);
   }
 
   if (isAll) {
-    return log(pckInfo);
+    return log(inspect(pckInfo, false, null, true));
   }
 
   if (packages) {
@@ -20,7 +23,7 @@ export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const curPath = cwd();
 
   Object.keys(pckInfo).forEach((pckName) => {
-    if (pckInfo[pckName].includes(curPath)) {
+    if (pckInfo[pckName].usedBy.includes(curPath)) {
       addedPackages.push(pckName);
     }
   });

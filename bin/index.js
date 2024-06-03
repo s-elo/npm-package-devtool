@@ -26,13 +26,13 @@ program
     require('../dist/index.js').dev(rootPath);
   });
 
-program
-  .command('link')
-  .description('link npm package(s) of current repo.')
-  .argument('[rootPath]', 'root path where to find packages')
-  .action(async (rootPath) => {
-    require('../dist/index.js').link(rootPath);
-  });
+// program
+//   .command('link')
+//   .description('link npm package(s) of current repo.')
+//   .argument('[rootPath]', 'root path where to find packages')
+//   .action(async (rootPath) => {
+//     require('../dist/index.js').link(rootPath);
+//   });
 
 program
   .command('add')
@@ -60,16 +60,16 @@ program
     require('../dist/index.js').remove(pckNames);
   });
 
-program
-  .command('unlink')
-  .description('unlink packages.')
-  .argument(
-    '[pckNames]',
-    'specify package names to be unlinked, split with ","',
-  )
-  .action(async (pckNames) => {
-    require('../dist/index.js').unlink(pckNames);
-  });
+// program
+//   .command('unlink')
+//   .description('unlink packages.')
+//   .argument(
+//     '[pckNames]',
+//     'specify package names to be unlinked, split with ","',
+//   )
+//   .action(async (pckNames) => {
+//     require('../dist/index.js').unlink(pckNames);
+//   });
 
 program
   .command('upgrade')

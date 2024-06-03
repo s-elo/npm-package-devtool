@@ -1,7 +1,10 @@
-import { resolve, dirname } from 'path';
+import { log, warn } from 'node:console';
+import { resolve, dirname, join } from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
-import { log } from 'node:console';
+import chalk from 'chalk';
+import { globSync } from 'glob';
+
 import { ChoiceType, NptConfig } from './type';
 
 /**
@@ -54,9 +57,9 @@ export const resolveNptConfig = (packagePath: string) => {
   };
   const rootNptConfig = getRootNptConfig();
   const {
-    watch = global.NPT_CURRENT_WATCH_PATH?.split(',') ??
+    watch = (global.NPT_CURRENT_WATCH_PATH as string)?.split(',') ??
       rootNptConfig.watch ?? [packagePath],
-    start = global.NPT_CURRENT_START_PATH?.split('&&') ??
+    start = (global.NPT_CURRENT_START_PATH as string)?.split('&&') ??
       rootNptConfig.start ??
       [],
   } = packageJson.npt ?? {};
@@ -80,47 +83,32 @@ export const isGitRepo = () => {
   }
 };
 
-export const getPackagesByGit = (searchPath = '') => {
-  try {
-    const stdout = execSync(
-      `git grep -E "\\"name\\"\\:\\s*\\".+\\"" -- "${searchPath}/*package.json"`,
-    ).toString();
-
-    return stdout
-      .split('\n')
-      .slice(0, -1)
-      .map((line) => {
-        const [filePath] = line.split(':');
-        const packagePath = resolve(cwd(), filePath);
-
-        return resolveNptConfig(packagePath);
-      });
-  } catch (e) {
-    log((e as Error).message);
-  }
-};
-
-export const getPackagesByTraverse = (searchPath = '') => {
-  const ignoredDirs = ['node_modules'];
-  return fs
-    .readdirSync(searchPath)
-    .filter((d) => !ignoredDirs.includes(d))
-    .reduce<ReturnType<typeof resolveNptConfig>[]>((packages, blob) => {
-      const fullPath = resolve(searchPath, blob);
-
-      if (blob === 'package.json') {
-        packages.push(resolveNptConfig(fullPath));
-      } else if (fs.statSync(fullPath).isDirectory()) {
-        packages.push(...getPackagesByTraverse(fullPath));
-      }
-
-      return packages;
-    }, []);
-};
-
 export const getPackages = (rootPath = '') => {
-  const searchPath = resolve(cwd(), rootPath);
-  return getPackagesByTraverse(searchPath);
+  const fileName = 'package.json';
+  const rootPkgPath = resolve(cwd(), rootPath, fileName);
+  const pkg = readPackage(rootPkgPath);
+  let allPkgs: string[] = [];
+  if (pkg.workspaces) {
+    const packages = Array.isArray(pkg.workspaces)
+      ? pkg.workspaces
+      : pkg.workspaces?.packages;
+    if (!Array.isArray(packages)) {
+      log(
+        chalk.red(
+          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
+        ),
+      );
+      log(packages);
+      return [];
+    }
+    const allPattern = packages.map((subPkg) =>
+      resolve(rootPath, subPkg, fileName),
+    );
+    allPkgs = globSync(allPattern);
+  } else {
+    allPkgs = [rootPkgPath];
+  }
+  return allPkgs.map((pkgPath) => resolveNptConfig(pkgPath));
 };
 
 export const selector = async ({
@@ -141,6 +129,8 @@ export const selector = async ({
       message,
       choices,
       default: selected,
+      pageSize: 20,
+      required: true,
     },
   ]);
 
@@ -159,4 +149,37 @@ export const confirm = async (question: string) => {
   ]);
 
   return result.confirm;
+};
+
+export const findAllPackageDestPaths = (
+  rootPath: string,
+  packageName: string,
+) => {
+  const pkgPath = join(rootPath, 'package.json');
+  if (!fs.existsSync(pkgPath)) {
+    warn(chalk.yellow('dest package not found', pkgPath));
+    return [];
+  }
+  const pkg = readPackage(pkgPath);
+  const defaultPath = join(rootPath, 'node_modules', packageName);
+  if (pkg.workspaces) {
+    const packages = Array.isArray(pkg.workspaces)
+      ? pkg.workspaces
+      : pkg.workspaces?.packages;
+    if (!Array.isArray(packages)) {
+      log(
+        chalk.red(
+          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
+        ),
+      );
+      log(packages);
+      return [];
+    }
+    const all = [
+      ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
+      defaultPath,
+    ];
+    return globSync(all);
+  }
+  return [defaultPath];
 };
