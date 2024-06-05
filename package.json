@@ -12,7 +12,7 @@
   ],
   "homepage": "https://git.garena.com/shopee/seller-fe/tech/platform-tech/npm-package-devtool",
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "pnpm build --watch",
     "ts-check": "tsc -p tsconfig.build.json --noEmit",
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "pnpm ts-check && pnpm build",

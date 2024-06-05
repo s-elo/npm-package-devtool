@@ -29,8 +29,19 @@ export async function add(packageNamesStr?: string) {
       }
       return check;
     }, [])
-    // put added packages at the front
-    .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
+    .sort((a, b) => {
+      // put added packages at the front
+      if (a.checked && b.checked) {
+        return a.name < b.name ? -1 : 1;
+      }
+      if (a.checked) {
+        return -1;
+      }
+      if (a.name < b.name) {
+        return -1;
+      }
+      return 1;
+    });
   const packageNames =
     packageNamesStr?.split(',') ??
     (await selector({
