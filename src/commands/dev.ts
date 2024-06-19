@@ -63,11 +63,15 @@ export async function dev(rootPath?: string) {
   } else {
     log(chalk.red('Please specify how to start dev, there are 2 ways:'));
     log(chalk.gray('1. in environment variable'));
-    log(chalk.gray('eg:  npt dev -s "yarn build:watch" -w "./esm"'));
+    log(chalk.gray('eg: npt dev -s "yarn build:watch" -w "./esm"'));
     log(chalk.gray('2. in package.json'));
     log(
       chalk.gray(
-        'eg: "npt": { "start": "yarn build:watch", "watch": "./esm" }',
+        `eg:
+  "npt": {
+    "start": [ "yarn build:watch" ],
+    "watch": ["./esm"]
+  }`,
       ),
     );
     log(chalk.gray(''));

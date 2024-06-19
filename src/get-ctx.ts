@@ -20,7 +20,9 @@ export const NPD_CONTEXT_DIR = path.resolve(
 
 export const NPD_CONTEXT_PATH = `${NPD_CONTEXT_DIR}/link.json`;
 
-const uniqMerge = (a: string[], b: string[]) => [...new Set([...a, ...b])];
+const uniqMerge = (a: string[] = [], b: string[] = []) => [
+  ...new Set([...a, ...b]),
+];
 
 class ConfigService {
   protected _config: Config | null = null;
