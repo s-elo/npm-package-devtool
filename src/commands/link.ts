@@ -53,8 +53,12 @@ export async function link(rootPath = '', isDev = false) {
   if (!selectedPackages?.length) return [];
 
   log(chalk.gray(`Linking packages: ${packageNames.join(',')}...`));
-  selectedPackages.forEach((pck) => {
-    pckInfo[pck.name] = pckInfo[pck.name] || [];
+  selectedPackages.forEach((pkg) => {
+    pckInfo[pkg.name] = pckInfo[pkg.name] || {
+      rootPath: pkg.rootPath,
+      config: pkg.config,
+      usedBy: [],
+    };
   });
   configService.setConfig(pckInfo);
   saveConfig({ selectedPackages: selectedPackages.map((p) => p.name) });
