@@ -7,7 +7,7 @@ import { cwd } from '../utils';
 export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   const pckInfo = configService.getConfig();
   if (pckName) {
-    const result = (pckInfo[pckName]?.usedBy ?? []).join('\n');
+    const result = (pckInfo[pckName]?.usedBy ?? []).sort().join('\n');
     return log(result || `package ${pckName} not found`);
   }
 
@@ -16,7 +16,7 @@ export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
   }
 
   if (packages) {
-    return log(Object.keys(pckInfo).join('\n'));
+    return log(Object.keys(pckInfo).sort().join('\n'));
   }
 
   const addedPackages: string[] = [];
@@ -30,7 +30,7 @@ export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
 
   return log(
     addedPackages.length
-      ? addedPackages.join('\n')
+      ? addedPackages.sort().join('\n')
       : 'No added packages for this repo',
   );
 }
