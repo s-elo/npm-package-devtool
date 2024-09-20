@@ -179,7 +179,10 @@ export const findAllPackageDestPaths = (
       ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
       defaultPath,
     ];
-    return globSync(all);
+
+    const globRet = globSync(all);
+    // for non-published newly added package
+    return globRet.length ? globRet : [defaultPath];
   }
   return [defaultPath];
 };

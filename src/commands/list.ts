@@ -2,9 +2,22 @@ import { log } from 'node:console';
 import { inspect } from 'node:util';
 
 import { configService } from '../get-ctx';
-import { cwd } from '../utils';
+import { confirm, cwd } from '../utils';
 
-export function list(pckName?: string, isAll?: boolean, packages?: boolean) {
+export async function list(
+  pckName?: string,
+  isAll?: boolean,
+  packages?: boolean,
+  clear?: boolean,
+) {
+  if (clear) {
+    if (await confirm('Are you sure to clean up the links')) {
+      configService.setConfig({});
+      log('Cleaned up.');
+    }
+    return;
+  }
+
   const pckInfo = configService.getConfig();
   if (pckName) {
     const result = (pckInfo[pckName]?.usedBy ?? []).sort().join('\n');

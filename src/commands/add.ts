@@ -62,6 +62,7 @@ const copyPackage = (
     return;
   }
   const destPaths = findAllPackageDestPaths(destPath, pkgName);
+
   for (const dest of destPaths) {
     log(chalk.gray(`Copying ${pkgName} to ${dest}...`));
     copy(rootPath, dest, {

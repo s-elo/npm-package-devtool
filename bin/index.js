@@ -12,6 +12,13 @@ const packageJson = JSON.parse(
 program.version(packageJson.version);
 
 program
+  .description('get the package actual path.')
+  .option('-l', 'get the package actual path.')
+  .action(() => {
+    console.log(resolve(__dirname, './'));
+  });
+
+program
   .command('dev')
   .description('develop npm package(s) of current repo.')
   .argument('[rootPath]', 'root path where to find packages')
@@ -48,8 +55,9 @@ program
   .argument('[pckName]', 'list all the added path of a linked package')
   .option('-a, --all', 'list all the relations')
   .option('-p, --packages', 'list all the packages that are linked')
-  .action(async (pckName, { packages, all }) => {
-    require('../dist/index.js').list(pckName, all, packages);
+  .option('-c, --clear', 'clear the all the links')
+  .action(async (pckName, { packages, all, clear }) => {
+    require('../dist/index.js').list(pckName, all, packages, clear);
   });
 
 program
@@ -82,6 +90,6 @@ program
   });
 
 program.parse(process.argv).opts();
-if (!program.args.length) {
+if (process.argv.length <= 2) {
   program.help();
 }
