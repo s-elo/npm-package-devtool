@@ -45,8 +45,9 @@ program
   .command('add')
   .description('add linked npm package(s) to current project.')
   .argument('[pckNames]', 'specify package names to add, split with ","')
-  .action(async (pckNames) => {
-    require('../dist/index.js').add(pckNames);
+  .option('-f, --filter <string>', 'filter all package, support RegExp')
+  .action(async (pckNames, { filter }) => {
+    require('../dist/index.js').add(pckNames, { filter });
   });
 
 program

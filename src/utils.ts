@@ -151,6 +151,15 @@ export const confirm = async (question: string) => {
   return result.confirm;
 };
 
+const revealRealpath = (paths: string[]) =>
+  paths.map((p) => {
+    const stat = fs.lstatSync(p);
+    if (stat.isSymbolicLink()) {
+      return fs.realpathSync(p);
+    }
+    return p;
+  });
+
 export const findAllPackageDestPaths = (
   rootPath: string,
   packageName: string,
@@ -162,27 +171,27 @@ export const findAllPackageDestPaths = (
   }
   const pkg = readPackage(pkgPath);
   const defaultPath = join(rootPath, 'node_modules', packageName);
-  if (pkg.workspaces) {
-    const packages = Array.isArray(pkg.workspaces)
-      ? pkg.workspaces
-      : pkg.workspaces?.packages;
-    if (!Array.isArray(packages)) {
-      log(
-        chalk.red(
-          `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
-        ),
-      );
-      log(packages);
-      return [];
-    }
-    const all = [
-      ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
-      defaultPath,
-    ];
-
-    const globRet = globSync(all);
-    // for non-published newly added package
-    return globRet.length ? globRet : [defaultPath];
+  if (!pkg.workspaces) {
+    return revealRealpath([defaultPath]);
   }
-  return [defaultPath];
+  const packages = Array.isArray(pkg.workspaces)
+    ? pkg.workspaces
+    : pkg.workspaces?.packages;
+  if (!Array.isArray(packages)) {
+    log(
+      chalk.red(
+        `Dest project(${rootPath}) is a monorepo, but packages is invalid`,
+      ),
+    );
+    log(packages);
+    return [];
+  }
+  const all = [
+    ...packages.map((p) => join(rootPath, p, 'node_modules', packageName)),
+    defaultPath,
+  ];
+
+  const globRet = globSync(all);
+  // for non-published newly added package
+  return revealRealpath(globRet.length ? globRet : [defaultPath]);
 };

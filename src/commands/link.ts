@@ -20,29 +20,30 @@ export async function link(rootPath = '', isDev = false) {
 
   const pckInfo = configService.getConfig();
   const cacheConfig = loadConfig();
-  const allPckNames = isDev
+  let allPckNames = isDev
     ? packages.map((p) => ({
         value: p.name,
         name: p.name,
         checked: Boolean(cacheConfig.selectedPackages?.includes(p.name)),
         disabled: false,
       }))
-    : packages
-        ?.map((p) => {
-          const check: ChoiceType[0] = {
-            value: p.name,
-            name: p.name,
-            checked: false,
-            disabled: false,
-          };
-          if (pckInfo[p.name]) {
-            check.checked = true;
-            check.disabled = 'Already Linked';
-          }
-          return check;
-        })
-        // put linked packages at the front
-        .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
+    : packages?.map((p) => {
+        const check: ChoiceType[0] = {
+          value: p.name,
+          name: p.name,
+          checked: false,
+          disabled: false,
+        };
+        if (pckInfo[p.name]) {
+          check.checked = true;
+          check.disabled = 'Already Linked';
+        }
+        return check;
+      });
+  // put linked packages at the front
+  allPckNames = allPckNames.sort((a, b) =>
+    !a.checked && b.checked ? 1 : a.name > b.name ? 1 : -1,
+  );
   const packageNames = await selector({
     choices: allPckNames,
     message: 'choose the packages you want to develop',

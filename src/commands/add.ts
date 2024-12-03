@@ -10,10 +10,17 @@ import { cwd, findAllPackageDestPaths, selector } from '../utils';
  * add the packages to current repo to form the package-repo relations
  * @param packageNamesStr package names split with ","
  */
-export async function add(packageNamesStr?: string) {
+export async function add(
+  packageNamesStr?: string,
+  { filter }: { filter?: string } = {},
+) {
   const currentCwd = cwd();
   const nptConfig = configService.getConfig();
-  const allPackages = Object.keys(nptConfig);
+  let allPackages = Object.keys(nptConfig);
+  if (filter) {
+    const filterRe = new RegExp(filter);
+    allPackages = allPackages.filter((pkgName) => filterRe.test(pkgName));
+  }
   const choices = allPackages
     .map((name) => {
       const check: ChoiceType[0] = {
@@ -36,6 +43,9 @@ export async function add(packageNamesStr?: string) {
       }
       if (a.checked) {
         return -1;
+      }
+      if (b.checked) {
+        return 1;
       }
       if (a.name < b.name) {
         return -1;
@@ -68,14 +78,19 @@ const copyPackage = (
     copy(rootPath, dest, {
       overwrite: true,
       filter(path) {
+        const fullPath = `${rootPath}/${path}`;
         if (path === 'package.json') {
+          console.log('cp', fullPath);
           return true;
         }
 
-        const fullPath = `${rootPath}/${path}`;
-        return (config.watch || []).some((watchDir) =>
+        const matched = (config.watch || []).some((watchDir) =>
           fullPath.startsWith(watchDir),
         );
+        if (matched) {
+          console.log('cp', fullPath);
+        }
+        return matched;
       },
     });
   }
