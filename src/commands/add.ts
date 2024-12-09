@@ -4,7 +4,7 @@ import copy from 'recursive-copy';
 
 import { configService, PackageInfo } from '../get-ctx';
 import { ChoiceType } from '../type';
-import { cwd, findAllPackageDestPaths, selector } from '../utils';
+import { cwd, findAllPackageDestPaths, selector, sortPackages } from '../utils';
 
 /**
  * add the packages to current repo to form the package-repo relations
@@ -36,22 +36,7 @@ export async function add(
       }
       return check;
     }, [])
-    .sort((a, b) => {
-      // put added packages at the front
-      if (a.checked && b.checked) {
-        return a.name < b.name ? -1 : 1;
-      }
-      if (a.checked) {
-        return -1;
-      }
-      if (b.checked) {
-        return 1;
-      }
-      if (a.name < b.name) {
-        return -1;
-      }
-      return 1;
-    });
+    .sort(sortPackages);
   const packageNames =
     packageNamesStr?.split(',') ??
     (await selector({

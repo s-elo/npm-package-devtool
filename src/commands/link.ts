@@ -3,7 +3,7 @@ import { log } from 'node:console';
 import { loadConfig, saveConfig } from '../cache-config';
 import { configService } from '../get-ctx';
 import { ChoiceType } from '../type';
-import { getPackages, selector } from '../utils';
+import { getPackages, selector, sortPackages } from '../utils';
 
 /**
  * add the chosen packages to the npd context info store
@@ -41,9 +41,7 @@ export async function link(rootPath = '', isDev = false) {
         return check;
       });
   // put linked packages at the front
-  allPckNames = allPckNames.sort((a, b) =>
-    !a.checked && b.checked ? 1 : a.name > b.name ? 1 : -1,
-  );
+  allPckNames = allPckNames.sort(sortPackages);
   const packageNames = await selector({
     choices: allPckNames,
     message: 'choose the packages you want to develop',

@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 import chalk from 'chalk';
 import { globSync } from 'glob';
 
-import { ChoiceType, NptConfig } from './type';
+import { ChoiceItem, ChoiceType, NptConfig } from './type';
 
 /**
  * get the path based on the path where to execute the command
@@ -194,4 +194,24 @@ export const findAllPackageDestPaths = (
   const globRet = globSync(all);
   // for non-published newly added package
   return revealRealpath(globRet.length ? globRet : [defaultPath]);
+};
+
+/**
+ * sort choice item: order by selected first, then by name asc
+ */
+export const sortPackages = (a: ChoiceItem, b: ChoiceItem) => {
+  // put added packages at the front
+  if (a.checked && b.checked) {
+    return a.name < b.name ? -1 : 1;
+  }
+  if (a.checked) {
+    return -1;
+  }
+  if (b.checked) {
+    return 1;
+  }
+  if (a.name < b.name) {
+    return -1;
+  }
+  return 1;
 };
