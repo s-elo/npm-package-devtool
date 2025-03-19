@@ -152,13 +152,15 @@ export const confirm = async (question: string) => {
 };
 
 const revealRealpath = (paths: string[]) =>
-  paths.map((p) => {
-    const stat = fs.lstatSync(p);
-    if (stat.isSymbolicLink()) {
-      return fs.realpathSync(p);
-    }
-    return p;
-  });
+  paths
+    .filter((p) => fs.existsSync(p))
+    .map((p) => {
+      const stat = fs.lstatSync(p);
+      if (stat.isSymbolicLink()) {
+        return fs.realpathSync(p);
+      }
+      return p;
+    });
 
 export const findAllPackageDestPaths = (
   rootPath: string,
@@ -171,8 +173,13 @@ export const findAllPackageDestPaths = (
   }
   const pkg = readPackage(pkgPath);
   const defaultPath = join(rootPath, 'node_modules', packageName);
+  const pnpmDefaultPath = join(
+    rootPath,
+    'node_modules/.pnpm/node_modules',
+    packageName,
+  );
   if (!pkg.workspaces) {
-    return revealRealpath([defaultPath]);
+    return revealRealpath([defaultPath, pnpmDefaultPath]);
   }
   const packages = Array.isArray(pkg.workspaces)
     ? pkg.workspaces
