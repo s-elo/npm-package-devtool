@@ -15,7 +15,7 @@ There is a global config file `~/npm-package-dev-tool/link.json` used to store t
 ```bash
 $ npm -g install pnpm
 
-$ pnpm add -g @s-elo/npm-package-devtool
+$ pnpm add -g npm-package-devtool
 
 # or clone the repo to your local to link
 $ git clone git@github.com:s-elo/npm-package-devtool.git
@@ -30,7 +30,7 @@ $ pnpm link -g
 $ spt --version
 
 # to unlink
-$ pnpm uninstall -g @s-elo/npm-package-devtool
+$ pnpm uninstall -g npm-package-devtool
 ```
 
 ## Upgrade
@@ -177,7 +177,7 @@ $ pnpm link -g
 $ pnpm dev
 ```
 
-To unlink, run `pnpm uninstall -g @s-elo/npm-package-devtool`.
+To unlink, run `pnpm uninstall -g npm-package-devtool`.
 
 ## Publish
 

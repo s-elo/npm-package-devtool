@@ -83,7 +83,7 @@ program
   .command('upgrade')
   .description('upgrade to latest version.')
   .action(() => {
-    execSync('pnpm install -g @s-elo/npm-package-devtool@latest', {
+    execSync('pnpm install -g npm-package-devtool@latest', {
       stdio: 'inherit',
     });
   });
