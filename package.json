@@ -1,6 +1,6 @@
 {
   "name": "@s-elo/npm-package-devtool",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Npm Package Devtool",
   "author": "s-elo",
   "bin": {
