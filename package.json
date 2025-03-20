@@ -1,29 +1,27 @@
 {
-  "name": "npm-package-devtool",
+  "name": "@s-elo/npm-package-devtool",
   "version": "0.0.3",
   "description": "Npm Package Devtool",
   "author": "s-elo",
   "bin": {
-    "npt": "./bin/index.mjs"
+    "spt": "./bin/index.js"
   },
   "files": [
     "dist",
     "bin"
   ],
+  "homepage": "https://github.com/s-elo/npm-package-devtool",
   "scripts": {
-    "dev": "rollup --config --watch",
-    "ts-check": "tsc --noEmit",
-    "build": "rm -rf dist && rollup --config",
+    "dev": "pnpm build --watch",
+    "ts-check": "tsc -p tsconfig.build.json --noEmit",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "pnpm ts-check && pnpm build",
     "release": "bumpp && npm publish",
     "version:feature": "node ./scripts/version-feature.mjs",
-    "versions": "npm view npm-package-devtool versions",
-    "preinstall": "npx only-allow pnpm",
+    "versions": "npm view @s-elo/npm-devtool versions",
     "prepare": "git config --local core.hooksPath ./.git/hooks/ && simple-git-hooks"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-json": "^6.0.0",
     "@types/debounce": "^3.0.0",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^20.5.7",
@@ -35,18 +33,18 @@
     "eslint-plugin-prettier": "^4.0.0",
     "lint-staged": "^14.0.1",
     "prettier": "^2.3.2",
-    "rollup": "^3.28.1",
-    "rollup-plugin-typescript2": "^0.35.0",
     "simple-git": "^3.19.1",
     "simple-git-hooks": "^2.9.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "chalk": "^5.3.0",
+    "chalk": "^4.1.0",
     "commander": "^11.0.0",
     "concurrently": "^8.2.1",
     "debounce": "^1.2.1",
-    "inquirer": "^9.2.10",
+    "glob": "^10.3.10",
+    "inquirer": "^8.0.0",
+    "inquirer-checkbox-search": "^1.0.1",
     "node-watch": "^0.7.4",
     "recursive-copy": "^2.0.14"
   },
@@ -64,6 +62,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">= 16"
+    "node": ">= 18"
   }
 }

@@ -1,7 +1,9 @@
+import { log } from 'node:console';
+
+import { loadConfig, saveConfig } from '../cache-config';
 import { configService } from '../get-ctx';
 import { ChoiceType } from '../type';
-import { getPackages, selector } from '../utils';
-import { log } from 'node:console';
+import { getPackages, selector, sortPackages } from '../utils';
 
 /**
  * add the chosen packages to the npd context info store
@@ -17,24 +19,29 @@ export async function link(rootPath = '', isDev = false) {
   }
 
   const pckInfo = configService.getConfig();
-  const allPckNames = isDev
-    ? packages.map((p) => p.name)
-    : packages
-        ?.map((p) => {
-          const check: ChoiceType[0] = {
-            value: p.name,
-            name: p.name,
-            checked: false,
-            disabled: false,
-          };
-          if (pckInfo[p.name]) {
-            check.checked = true;
-            check.disabled = 'Already Linked';
-          }
-          return check;
-        })
-        // put linked packages at the front
-        .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
+  const cacheConfig = loadConfig();
+  let allPckNames = isDev
+    ? packages.map((p) => ({
+        value: p.name,
+        name: p.name,
+        checked: Boolean(cacheConfig.selectedPackages?.includes(p.name)),
+        disabled: false,
+      }))
+    : packages?.map((p) => {
+        const check: ChoiceType[0] = {
+          value: p.name,
+          name: p.name,
+          checked: false,
+          disabled: false,
+        };
+        if (pckInfo[p.name]) {
+          check.checked = true;
+          check.disabled = 'Already Linked';
+        }
+        return check;
+      });
+  // put linked packages at the front
+  allPckNames = allPckNames.sort(sortPackages);
   const packageNames = await selector({
     choices: allPckNames,
     message: 'choose the packages you want to develop',
@@ -45,10 +52,15 @@ export async function link(rootPath = '', isDev = false) {
   if (!selectedPackages?.length) return [];
 
   log(chalk.gray(`Linking packages: ${packageNames.join(',')}...`));
-  selectedPackages.forEach((pck) => {
-    pckInfo[pck.name] = pckInfo[pck.name] || [];
+  selectedPackages.forEach((pkg) => {
+    pckInfo[pkg.name] = pckInfo[pkg.name] || {
+      rootPath: pkg.rootPath,
+      config: pkg.config,
+      usedBy: [],
+    };
   });
   configService.setConfig(pckInfo);
+  saveConfig({ selectedPackages: selectedPackages.map((p) => p.name) });
   log(chalk.green('Linking packages Done.'));
 
   return selectedPackages;

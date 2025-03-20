@@ -1,16 +1,26 @@
-import { configService } from '../get-ctx';
+import { log, warn } from 'node:console';
+import chalk from 'chalk';
+import copy from 'recursive-copy';
+
+import { configService, PackageInfo } from '../get-ctx';
 import { ChoiceType } from '../type';
-import { cwd, selector } from '../utils';
-import { log } from 'node:console';
+import { cwd, findAllPackageDestPaths, selector, sortPackages } from '../utils';
 
 /**
  * add the packages to current repo to form the package-repo relations
  * @param packageNamesStr package names split with ","
  */
-export async function add(packageNamesStr?: string) {
+export async function add(
+  packageNamesStr?: string,
+  { filter }: { filter?: string } = {},
+) {
   const currentCwd = cwd();
   const nptConfig = configService.getConfig();
-  const allPackages = Object.keys(nptConfig);
+  let allPackages = Object.keys(nptConfig);
+  if (filter) {
+    const filterRe = new RegExp(filter);
+    allPackages = allPackages.filter((pkgName) => filterRe.test(pkgName));
+  }
   const choices = allPackages
     .map((name) => {
       const check: ChoiceType[0] = {
@@ -19,15 +29,14 @@ export async function add(packageNamesStr?: string) {
         checked: false,
         disabled: false,
       };
-      if (nptConfig[name].includes(currentCwd)) {
+      if (nptConfig[name].usedBy.includes(currentCwd)) {
         check.checked = true;
         // currently enable to remove from add process.
         // check.disabled = 'Already added';
       }
       return check;
     }, [])
-    // put added packages at the front
-    .sort((a, b) => (!a.checked && b.checked ? 1 : -1));
+    .sort(sortPackages);
   const packageNames =
     packageNamesStr?.split(',') ??
     (await selector({
@@ -35,38 +44,70 @@ export async function add(packageNamesStr?: string) {
       message: 'select the packages that you want to add',
     }));
 
-  return addByNames(packageNames);
+  addByNames(packageNames);
 }
 
-async function addByNames(packageNames: string[]) {
+const copyPackage = (
+  pkgName: string,
+  { rootPath, config }: PackageInfo,
+  destPath: string,
+) => {
+  if (!config.watch?.length) {
+    warn(`Can not found watch dir of ${pkgName}`);
+    return;
+  }
+  const destPaths = findAllPackageDestPaths(destPath, pkgName);
+  for (const dest of destPaths) {
+    log(chalk.gray(`Copying ${pkgName} to ${dest}...`));
+    copy(rootPath, dest, {
+      overwrite: true,
+      filter(path) {
+        const fullPath = `${rootPath}/${path}`;
+        if (path === 'package.json') {
+          console.log('cp', fullPath);
+          return true;
+        }
+
+        const matched = (config.watch || []).some((watchDir) =>
+          fullPath.startsWith(watchDir),
+        );
+        if (matched) {
+          console.log('cp', fullPath);
+        }
+        return matched;
+      },
+    });
+  }
+};
+
+function addByNames(packageNames: string[]) {
   if (!packageNames.length) return;
 
-  const chalk = (await import('chalk')).default;
-
   const curPath = cwd();
-  const pckInfo = configService.getConfig();
+  const pkgInfos = configService.getConfig();
 
   // remove the non-added packages
-  Object.keys(pckInfo).forEach((name) => {
+  Object.keys(pkgInfos).forEach((name) => {
     if (packageNames.includes(name)) return;
 
-    pckInfo[name] = pckInfo[name].filter((p) => p !== curPath);
+    pkgInfos[name].usedBy = pkgInfos[name].usedBy.filter((p) => p !== curPath);
   });
 
   packageNames.forEach((name) => {
-    if (!pckInfo[name]) {
+    const pkgInfo = pkgInfos[name];
+    if (!pkgInfo) {
       log(
-        chalk.red(`package ${name} not found, please link the package first.`),
+        chalk.red(`package ${name} not found, please add the package first.`),
       );
       return;
     }
-
-    if (!pckInfo[name].includes(curPath)) {
-      pckInfo[name].push(curPath);
+    copyPackage(name, pkgInfo, cwd());
+    if (!pkgInfos[name].usedBy.includes(curPath)) {
+      pkgInfos[name].usedBy.push(curPath);
     }
 
     log(chalk.green(`package ${name} is added.`));
   });
 
-  configService.setConfig(pckInfo);
+  configService.setConfig(pkgInfos);
 }

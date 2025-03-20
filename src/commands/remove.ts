@@ -7,7 +7,7 @@ export async function remove(packageNamesStr: string) {
 
   const pckInfo = configService.getConfig();
   const relatedPackages = Object.keys(pckInfo).reduce<string[]>((ret, name) => {
-    if (pckInfo[name].includes(cwd())) {
+    if (pckInfo[name].usedBy.includes(cwd())) {
       ret.push(name);
     }
     return ret;
@@ -23,14 +23,14 @@ export async function remove(packageNamesStr: string) {
     }));
 
   packageNames.forEach((name) => {
-    const idx = (pckInfo[name] ?? []).findIndex((p) => p === cwd());
+    const idx = (pckInfo[name].usedBy ?? []).findIndex((p) => p === cwd());
 
     if (idx === -1) {
       log(chalk.red(`package ${name} not exists.`));
       return;
     }
 
-    pckInfo[name].splice(idx, 1);
+    pckInfo[name].usedBy.splice(idx, 1);
     log(chalk.green(`package ${name} is removed.`));
   });
 

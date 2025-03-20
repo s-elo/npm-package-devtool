@@ -3,12 +3,11 @@ export type NptConfig = {
   start?: string[];
 };
 
-export type ChoiceType = (
-  | {
-      value: string;
-      name: string;
-      checked: boolean;
-      disabled: boolean | string;
-    }
-  | string
-)[];
+export interface ChoiceItem {
+  value: string;
+  name: string;
+  checked: boolean;
+  disabled: boolean | string;
+}
+
+export type ChoiceType = (ChoiceItem | string)[];
