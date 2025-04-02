@@ -1,6 +1,6 @@
 {
   "name": "@s-elo/npm-package-devtool",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Npm Package Devtool",
   "author": "s-elo",
   "bin": {
@@ -63,5 +63,8 @@
   "license": "MIT",
   "engines": {
     "node": ">= 18"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
