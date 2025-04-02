@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { program } = require('commander');
 const { resolve } = require('node:path');
 const fs = require('fs');
